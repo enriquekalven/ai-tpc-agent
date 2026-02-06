@@ -50,40 +50,67 @@ class GitHubBridge:
             console.print(f"[red]Failed to post to GitHub: {e}[/red]")
 
     def _format_markdown_report(self, knowledge: List[Dict[str, Any]]) -> str:
-        report = "# 🚀 AI TPC Field Pulse\n\n"
-        report += "The following updates have been synthesized for the field team:\n\n"
+        report = "# 🚀 AI TPC Field Pulse\n"
+        report += f"**Generated on:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} PST\n\n"
+        report += "--- \n\n"
+        report += "## 🎯 Executive Synthesis\n"
+        
+        # Heuristic synthesis summary
+        roadmap_items = [k for k in knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
+        if roadmap_items:
+            report += f"Found **{len(roadmap_items)}** major roadmap shifts in the last 24 hours. "
+            report += "Key focus areas should be **Agent Standardization (ADK)** and **Partner Model Depth (Vertex AI)**.\n\n"
+        else:
+            report += "No major roadmap shifts detected in the last 24 hours. Review industry trends below for market context.\n\n"
+
+        report += "--- \n\n"
         
         # Roadmap Section
-        report += "## 🌉 Roadmap Bridge\n\n"
-        roadmap_items = [k for k in knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
+        report += "## 🌉 Roadmap & Release Bridge\n"
+        report += "_How to talk about these updates to the field._\n\n"
+        
         if not roadmap_items:
-            report += "_No major roadmap shifts detected today._\n\n"
+            report += "> _No recent roadmap items to bridge._\n\n"
         else:
             for item in roadmap_items:
                 title = item.get('title', '').lower()
-                bridge = "New roadmap update detected. Review impacts on developer velocity."
+                bridge = "New tech detected. Review impacts on developer velocity."
+                
                 if any(term in title for term in ["agent", "builder"]):
-                    bridge = "CRITICAL: Enhances Agent Builder. Focus on 'Low-Code to Pro-Code' transition story."
+                    bridge = "🔥 **CRITICAL**: Enhances Agent Builder. Focus on 'Low-Code to Pro-Code' transition story."
                 elif any(term in title for term in ["gemini", "ge"]):
-                    bridge = "GE UPDATE: New Gemini features. Highlight Context Window and Reasoning Engine."
-                elif any(term in title for term in ["security", "compliance"]):
-                    bridge = "GOVERNANCE: Addresses Enterprise Security. Use to unblock FinServ/Healthcare deals."
+                    bridge = "🤖 **GE UPDATE**: New Gemini features. Highlight Context Window and Reasoning Engine."
+                elif any(term in title for term in ["security", "compliance", "iam"]):
+                    bridge = "🛡️ **GOVERNANCE**: Directly addresses Enterprise Security. Use to unblock FinServ/Healthcare deals."
                 elif any(term in title for term in ["claude", "anthropic", "opus"]):
-                    bridge = "PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity."
+                    bridge = "🎨 **PARTNER DEPTH**: New Claude models on Vertex. Crucial for customers requesting model-diversity."
+                elif "adk" in title:
+                    bridge = "📦 **DEV EXPERIENCE**: ADK Update. Promotes standardized agent building across teams."
+                elif "a2ui" in title:
+                    bridge = "🖥️ **UX REVOLUTION**: Agent-Driven UI. Standardizing component rendering for agents."
 
-                report += f"### [{item['source'].upper()}] {item['title']}\n"
+                report += f"### 📦 [{item['source'].upper()}] {item['title']}\n"
                 report += f"**🚀 Field Impact:** {bridge}\n\n"
-                report += f"> {item.get('summary', '')[:500]}...\n\n"
-                report += f"[🔗 Open Documentation]({item.get('source_url', '#')})\n\n---\n"
+                report += f"{item.get('summary', '')[:800]}...\n\n"
+                report += f"**[🔗 Open Documentation]({item.get('source_url', '#')})**\n\n"
+                report += "---\n"
 
         # Trends Section
-        report += "\n## 💡 AI Knowledge & Market Trends\n\n"
+        report += "\n## 💡 AI Knowledge & Market Trends\n"
         trend_items = [k for k in knowledge if k['category'] != 'roadmap']
-        for item in trend_items:
-            report += f"### {item.get('title', 'Unknown Update')}\n"
-            report += f"*Source: {item.get('description', item.get('source', 'Unknown'))}*\n\n"
-            report += f"{item.get('summary', '')[:500]}...\n\n"
-            report += f"[🔗 Read Full Update]({item.get('source_url', '#')})\n\n---\n"
+        if not trend_items:
+            report += "> _No new industry trends detected today._\n"
+        else:
+            for item in trend_items:
+                report += f"### 📰 {item.get('title', 'Market Update')}\n"
+                report += f"*Source: {item.get('description', item.get('source', 'Unknown'))}*\n\n"
+                report += f"{item.get('summary', '')[:600]}...\n\n"
+                report += f"**[🔗 Read Full Update]({item.get('source_url', '#')})**\n\n"
+                report += "---\n"
 
-        report += "\n\n_Synthesized by **AI TPC Agent** via GitHub Actions_"
+        report += "\n\n> [!NOTE]\n"
+        report += "> This report is synthesized by the **AI TPC Agent** based on live documentation and release feeds.\n"
         return report
+
+# Add missing import for datetime
+from datetime import datetime

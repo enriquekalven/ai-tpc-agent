@@ -34,7 +34,12 @@
     },
     "google-adk": {
       "feed": "https://github.com/google/adk-python/releases.atom",
-      "description": "Google ADK - Agent Development Kit Python SDK",
+      "description": "Google ADK - Agent Development Kit Python SDK (GitHub)",
+      "category": "roadmap"
+    },
+    "google-adk-pypi": {
+      "feed": "https://pypi.org/rss/project/google-adk/releases.xml",
+      "description": "Google ADK - PyPI Release Stream",
       "category": "roadmap"
     },
     "a2ui": {
