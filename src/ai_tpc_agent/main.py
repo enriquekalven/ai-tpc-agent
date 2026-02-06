@@ -8,11 +8,11 @@ from .core.email_bridge import EmailBridge
 app = typer.Typer(help="AI TPC Agent: Browsing and Promoting AI Knowledge")
 
 @app.command()
-def report():
+def report(days: int = typer.Option(2, "--days", "-d", help="Number of days to look back")):
     """Generate the AI Field Promotion Report locally."""
     agent = TPCAgent()
     knowledge = agent.browse_knowledge()
-    agent.promote_learnings(knowledge)
+    agent.promote_learnings(knowledge, days=days)
 
 @app.command()
 def chat(
