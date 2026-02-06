@@ -26,14 +26,15 @@ tpc-agent chat --webhook-url "YOUR_WEBHOOK_URL"
 ### Email Promotion
 ```bash
 # Uses TPC_SENDER_EMAIL and TPC_SENDER_PASSWORD env vars
-tpc-agent email "field-team@example.com"
+tpc-agent email "ai-tpc-agent@google.com"
 ```
 
 ## Scheduling (Field Pulse)
 The repository includes a GitHub Action (`.github/workflows/pulse.yml`) to automatically process updates.
 
 **Configuration:**
-1. **GitHub Secrets**: Add `GCHAT_WEBHOOK_URL` for Chat or `TPC_SENDER_EMAIL`, `TPC_SENDER_PASSWORD`, and `RECIPIENT_EMAIL` for Email.
+1. **GitHub Secrets**: Add `GCHAT_WEBHOOK_URL` for Chat or `TPC_SENDER_EMAIL` and `TPC_SENDER_PASSWORD` for Email.
+2. **Default Recipient**: Defaults to `ai-tpc-agent@google.com` unless overridden by the `RECIPIENT_EMAIL` secret.
 
 ## Alternative: Markdown Persistence
 If communication channels are restricted, you can run the agent to append to a local log:

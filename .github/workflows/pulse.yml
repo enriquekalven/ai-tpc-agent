@@ -31,6 +31,10 @@ jobs:
           if [ -n "$GCHAT_WEBHOOK_URL" ]; then
             tpc-agent chat
           fi
-          if [ -n "$RECIPIENT_EMAIL" ]; then
-            tpc-agent email "$RECIPIENT_EMAIL"
+          
+          # Priority: Secret > Explicit Request (ai-tpc-agent@google.com)
+          TARGET_EMAIL=${RECIPIENT_EMAIL:-"ai-tpc-agent@google.com"}
+          
+          if [ -n "$TPC_SENDER_EMAIL" ] && [ -n "$TPC_SENDER_PASSWORD" ]; then
+            tpc-agent email "$TARGET_EMAIL"
           fi
