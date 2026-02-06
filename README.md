@@ -142,3 +142,8 @@ The agent is specifically tuned to recognize and bridge these key themes:
 - **Developer Frameworks (ADK/A2UI)**: Promoting standard-first agentic architecture.
 - **Sovereign AI**: Matching compliance updates to regional deal blockers.
 - **Security**: Connecting IAM/Encryption shifts to enterprise governance themes.
+
+---
+
+## 🗺️ Future Growth
+See the [**ROADMAP.md**](ROADMAP.md) for planned features, RAG integration, and internal data ingestion milestones.
