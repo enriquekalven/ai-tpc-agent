@@ -42,9 +42,30 @@ graph TD
 ```
 
 ## Features
-- **Ecosystem Watcher**: Tracks Vertex AI, Generative AI, and Industry Blogs.
-- **Roadmap Bridger**: Translates technical roadmap updates into Field-ready talk tracks.
-- **Automated Reporting**: Generates high-fidelity promotion reports.
+- **Ecosystem Watcher**: Automated Python scavengers that track Vertex AI releases, GitHub code shifts, and PyPI updates.
+- **Gemini-Powered Synthesis**: Uses **Gemini 2.0 Flash** to translate dry technical changelogs into high-impact "Field Talk Tracks."
+- **Professional Multi-Channel Pulse**: Broadcasts professional reports to Email, GitHub Issues, and Google Chat.
+
+## How it Works
+The AI TPC Agent follows a structured **Retrieve -> Synthesize -> Promote** lifecycle:
+
+### 1. Automated Retrieval (The "Watcher")
+The agent's **Watcher** engine wakes up (via GitHub Actions) and uses custom scrapers to scan:
+*   **Official Release Notes**: Vertex AI, Gemini Enterprise, and Generative AI.
+*   **Developer Repositories**: Source code movements in the Google ADK and A2UI frameworks.
+*   **Industry Trends**: High-signal blogs and market analysis feeds.
+
+### 2. AI Synthesis (The "Brain")
+Once retrieval is complete, the raw data is passed to **Google Gemini**. The model performs "TPC Reasoning":
+*   **Summarization**: Condenses dense technical notes into 2-sentence business focus.
+*   **Bridging**: It identifies the "Sales Play" (e.g., matching a security feature to a FinServ deal blocker).
+*   **Formatting**: Cleans the data into email-friendly and markdown-ready blocks.
+
+### 3. Field Promotion (The "Bridges")
+The synthesized intel is pushed through various communication bridges:
+*   **Email**: A premium HTML report sent directly to field distribution lists.
+*   **GitHub Issues**: A persistent, searchable history of all technical pulses.
+*   **Google Chat**: Real-time card-based notifications for immediate visibility.
 
 ## Installation
 ```bash
@@ -113,9 +134,11 @@ If communication channels are restricted, you can run the agent to append to a l
 tpc-agent report >> FIELD_PILOT_LOG.md
 ```
 
-## Bridging Targets
-- **Agent Builder**: Low-code to Pro-code transition stories.
-- **Gemini / GE**: Context window and reasoning engine improvements.
-- **Claude / Anthropic**: Model diversity and partner depth.
-- **ADK / A2A / A2UI**: Standardization and UX revolution.
-- **Security & Compliance**: Unblocking enterprise deals.
+## Intelligence Targets (Powered by Gemini)
+The agent is specifically tuned to recognize and bridge these key themes:
+- **Agent Builder**: Translating low-code simplicity to pro-code extensibility.
+- **Gemini / GE**: Articulating the value of reasoning engines and long-context windows.
+- **Claude / Partner Models**: Supporting model-diversity narratives on Vertex AI.
+- **Developer Frameworks (ADK/A2UI)**: Promoting standard-first agentic architecture.
+- **Sovereign AI**: Matching compliance updates to regional deal blockers.
+- **Security**: Connecting IAM/Encryption shifts to enterprise governance themes.
