@@ -4,6 +4,7 @@ from typing import Optional
 from .core.agent import TPCAgent
 from .core.chat_bridge import GoogleChatBridge
 from .core.email_bridge import EmailBridge
+from .core.github_bridge import GitHubBridge
 
 app = typer.Typer(help="AI TPC Agent: Browsing and Promoting AI Knowledge")
 
