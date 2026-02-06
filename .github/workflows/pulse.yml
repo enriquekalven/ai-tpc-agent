@@ -21,8 +21,16 @@ jobs:
         run: |
           pip install .
           
-      - name: Broadcast to Google Chat
+      - name: Broadcast Updates
         env:
           GCHAT_WEBHOOK_URL: ${{ secrets.GCHAT_WEBHOOK_URL }}
+          TPC_SENDER_EMAIL: ${{ secrets.TPC_SENDER_EMAIL }}
+          TPC_SENDER_PASSWORD: ${{ secrets.TPC_SENDER_PASSWORD }}
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
         run: |
-          tpc-agent chat
+          if [ -n "$GCHAT_WEBHOOK_URL" ]; then
+            tpc-agent chat
+          fi
+          if [ -n "$RECIPIENT_EMAIL" ]; then
+            tpc-agent email "$RECIPIENT_EMAIL"
+          fi

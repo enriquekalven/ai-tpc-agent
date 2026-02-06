@@ -23,14 +23,23 @@ tpc-agent report
 tpc-agent chat --webhook-url "YOUR_WEBHOOK_URL"
 ```
 
-## Scheduling (Field Pulse)
-The repository includes a GitHub Action (`.github/workflows/pulse.yml`) to automatically post updates to Google Chat every Monday and Wednesday.
+### Email Promotion
+```bash
+# Uses TPC_SENDER_EMAIL and TPC_SENDER_PASSWORD env vars
+tpc-agent email "field-team@example.com"
+```
 
-**Setup:**
-1. Go to your repository **Settings** > **Secrets and variables** > **Actions**.
-2. Add a new **Repository secret**:
-   - **Name**: `GCHAT_WEBHOOK_URL`
-   - **Value**: Your Google Chat Space webhook URL.
+## Scheduling (Field Pulse)
+The repository includes a GitHub Action (`.github/workflows/pulse.yml`) to automatically process updates.
+
+**Configuration:**
+1. **GitHub Secrets**: Add `GCHAT_WEBHOOK_URL` for Chat or `TPC_SENDER_EMAIL`, `TPC_SENDER_PASSWORD`, and `RECIPIENT_EMAIL` for Email.
+
+## Alternative: Markdown Persistence
+If communication channels are restricted, you can run the agent to append to a local log:
+```bash
+tpc-agent report >> FIELD_PILOT_LOG.md
+```
 
 ### Bridging targets
 - Agent Builder

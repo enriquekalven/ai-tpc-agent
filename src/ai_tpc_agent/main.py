@@ -3,6 +3,7 @@ import os
 from typing import Optional
 from .core.agent import TPCAgent
 from .core.chat_bridge import GoogleChatBridge
+from .core.email_bridge import EmailBridge
 
 app = typer.Typer(help="AI TPC Agent: Browsing and Promoting AI Knowledge")
 
@@ -26,6 +27,19 @@ def chat(
     knowledge = agent.browse_knowledge()
     
     bridge = GoogleChatBridge(webhook_url)
+    bridge.post_report(knowledge)
+
+@app.command()
+def email(
+    recipient: str = typer.Argument(..., help="Recipient email address"),
+    sender: str = typer.Option(None, "--sender", envvar="TPC_SENDER_EMAIL", help="Sender email address"),
+    password: str = typer.Option(None, "--password", envvar="TPC_SENDER_PASSWORD", help="Sender email password/token")
+):
+    """Scan and send the report via Email."""
+    agent = TPCAgent()
+    knowledge = agent.browse_knowledge()
+    
+    bridge = EmailBridge(recipient, sender, password)
     bridge.post_report(knowledge)
 
 @app.command()
