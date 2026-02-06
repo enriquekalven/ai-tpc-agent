@@ -45,7 +45,7 @@ def email(
 @app.command()
 def serve():
     """Launch the ADK Agent as a local service (for Gemini integration)."""
-    import adk
+    from google import adk
     from .core.agent import tpc_agent
     typer.echo("🚀 Launching AI TPC Agent via Google ADK...")
     adk.run(tpc_agent)

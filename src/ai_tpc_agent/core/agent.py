@@ -1,4 +1,4 @@
-import adk
+from google import adk
 from typing import List, Dict, Any
 import os
 import json
@@ -11,7 +11,6 @@ console = Console()
 WATCHLIST_PATH = os.path.join(os.path.dirname(__file__), 'watchlist.json')
 
 class TPCTools:
-    @adk.tool
     def browse_ai_knowledge(self) -> List[Dict[str, Any]]:
         """
         Scans official Google Cloud AI release notes, blogs, and roadmap repositories.
@@ -24,8 +23,11 @@ class TPCTools:
             watchlist = json.load(f)
             
         knowledge_base = []
-        sources = watchlist.get('ai_knowledge_hub', {}).copy()
-        sources.update(watchlist.get('roadmap_trackers', {}))
+        hub = watchlist.get('ai_knowledge_hub', {})
+        roads = watchlist.get('roadmap_trackers', {})
+        
+        sources = hub.copy()
+        sources.update(roads)
 
         for name, info in sources.items():
             latest = fetch_latest_from_atom(info['feed'])
@@ -36,7 +38,6 @@ class TPCTools:
                 knowledge_base.append(latest)
         return knowledge_base
 
-    @adk.tool
     def bridge_roadmap_to_field(self, knowledge_item: Dict[str, Any]) -> str:
         """
         Translates a technical roadmap update into a field-ready 'Talk Track'.
@@ -55,9 +56,10 @@ class TPCTools:
         return bridge_context
 
 # Define the ADK Agent
+tpc_tools = TPCTools()
 tpc_agent = adk.Agent(
-    name="AI TPC Agent",
-    instructions="""
+    name="ai_tpc_agent",
+    instruction="""
     You are a Technical Program Consultant (TPC) for Google Cloud AI.
     Your mission is to bridge the visibility gap between product roadmaps (Agent Builder, GE) and the field teams.
     
@@ -65,15 +67,15 @@ tpc_agent = adk.Agent(
     2. Use 'bridge_roadmap_to_field' to translate technical updates into actionable insights.
     3. Promote these learnings to help field teams understand product direction and market shifts.
     """,
-    tools=[TPCTools().browse_ai_knowledge, TPCTools().bridge_roadmap_to_field]
+    tools=[tpc_tools.browse_ai_knowledge, tpc_tools.bridge_roadmap_to_field]
 )
 
-class TPCAgentLegacy:
+class TPCAgent:
     """
-    Legacy wrapper to maintain compatibility with existing CLI commands.
+    Wrapper to maintain compatibility with existing CLI commands.
     """
     def __init__(self):
-        self.tools = TPCTools()
+        self.tools = tpc_tools
 
     def browse_knowledge(self) -> List[Dict[str, Any]]:
         return self.tools.browse_ai_knowledge()
@@ -100,5 +102,9 @@ class TPCAgentLegacy:
             self._print_item(item)
 
     def _print_item(self, item: Dict[str, Any]):
-        promotion_msg = f"### {item['title']}\n*Source: {item['description']}*\n\n**Actionable Insight:**\n{item.get('summary', '')[:300]}...\n---\n"
+        title = item.get('title', 'Unknown Title')
+        source = item.get('description', item.get('source', 'Unknown Source'))
+        summary = item.get('summary', '')[:300]
+        
+        promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}...\n---\n"
         console.print(Markdown(promotion_msg))

@@ -26,6 +26,11 @@
       "feed": "https://github.com/google/generative-engineering/releases.atom",
       "description": "Generative Engineering - Tools and best practices roadmap",
       "category": "roadmap"
+    },
+    "agent-cockpit": {
+      "feed": "https://github.com/enriquekalven/agent-cockpit/releases.atom",
+      "description": "AgentOps Cockpit - Production-grade Agent Operations Platform",
+      "category": "roadmap"
     }
   }
 }
