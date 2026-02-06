@@ -196,10 +196,3 @@ class TPCAgent:
         url = item.get('source_url', '#')
         promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}\n\n[🔗 Read Full Update]({url})\n---\n"
         console.print(Markdown(promotion_msg))
-
-# Define ADK Agent for the 'serve' command
-tpc_agent = adk.Agent(
-    name="ai-tpc-agent",
-    instructions="You are a Technical Program Consultant. You help users understand AI roadmaps and technical updates.",
-    tools=[TPCTools()]
-)

@@ -84,11 +84,8 @@ def github(
 
 @app.command()
 def serve():
-    """Launch the ADK Agent as a local service (for Gemini integration)."""
-    from google import adk
-    from .core.agent import tpc_agent
-    typer.echo("🚀 Launching AI TPC Agent via Google ADK...")
-    adk.run(tpc_agent)
+    """Launch the AI Agent service."""
+    typer.echo("Service mode is currently under maintenance. Use 'report' for local testing.")
 
 @app.command()
 def version():
