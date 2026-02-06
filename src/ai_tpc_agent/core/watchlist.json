@@ -10,9 +10,19 @@
       "description": "Generative AI on Vertex AI - Model & API updates",
       "category": "platform"
     },
+    "gemini-enterprise-releases": {
+      "feed": "https://cloud.google.com/feeds/gemini-release-notes.xml",
+      "description": "Gemini for Google Workspace - Enterprise Update Log",
+      "category": "platform"
+    },
     "google-cloud-ai-blog": {
       "feed": "https://cloud.google.com/blog/products/ai-machine-learning/rss",
       "description": "Google Cloud AI Blog - Market Trends & Innovations",
+      "category": "trends"
+    },
+    "search-central-updates": {
+      "feed": "https://developers.google.com/search/updates/search_docs_updates.rss",
+      "description": "Google Search Central - Developer Updates & SEO impacts",
       "category": "trends"
     }
   },

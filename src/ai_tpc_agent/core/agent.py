@@ -5,7 +5,7 @@ import json
 from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
-from .watcher import fetch_latest_from_atom
+from .watcher import fetch_recent_updates
 
 console = Console()
 WATCHLIST_PATH = os.path.join(os.path.dirname(__file__), 'watchlist.json')
@@ -30,12 +30,12 @@ class TPCTools:
         sources.update(roads)
 
         for name, info in sources.items():
-            latest = fetch_latest_from_atom(info['feed'])
-            if latest:
-                latest['source'] = name
-                latest['category'] = info.get('category', 'general')
-                latest['description'] = info['description']
-                knowledge_base.append(latest)
+            recent_items = fetch_recent_updates(info['feed'], max_items=5)
+            for item in recent_items:
+                item['source'] = name
+                item['category'] = info.get('category', 'general')
+                item['description'] = info['description']
+                knowledge_base.append(item)
         return knowledge_base
 
     def bridge_roadmap_to_field(self, knowledge_item: Dict[str, Any]) -> str:
@@ -52,6 +52,8 @@ class TPCTools:
             bridge_context = "GE UPDATE: New Gemini models/features. Highlight 'Context Window' and 'Reasoning Engine' improvements."
         elif any(term in title for term in ["security", "compliance", "governance"]):
             bridge_context = "GOVERNANCE: Directly addresses Enterprise Security concerns. Use to unblock FinServ/Healthcare deals."
+        elif any(term in title for term in ["claude", "anthropic"]):
+            bridge_context = "PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity."
             
         return bridge_context
 
@@ -86,25 +88,27 @@ class TPCAgent:
             console.print("[yellow]No new insights found today.[/yellow]")
             return
 
+        # Sort by date, ensuring we handle N/A cases
         knowledge.sort(key=lambda x: x.get('date', ''), reverse=True)
         
         # Internal call to bridging for the report
         console.print("\n🌉 [bold cyan]ROADMAP BRIDGE: FIELD TALK TRACKS[/bold cyan]")
         roadmap_items = [k for k in knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
-        for item in roadmap_items[:5]:
+        for item in roadmap_items[:10]: # Show more roadmap items
             bridge = self.tools.bridge_roadmap_to_field(item)
-            panel_content = f"**Feature:** {item['title']}\n**Field Impact:** {bridge}\n**Action:** [Link]({item.get('source_url', '#')})"
+            panel_content = f"**Feature:** {item['title']}\n**Field Impact:** {bridge}\n**Action:** [Open Documentation]({item.get('source_url', '#')})"
             console.print(Panel(Markdown(panel_content), title=f"[{item['source'].upper()}]", border_style="cyan"))
 
         console.print("\n💡 [bold magenta]AI KNOWLEDGE & MARKET TRENDS[/bold magenta]")
         trend_items = [k for k in knowledge if k['category'] != 'roadmap']
-        for item in trend_items[:5]:
+        for item in trend_items[:10]: # Show more trend items
             self._print_item(item)
 
     def _print_item(self, item: Dict[str, Any]):
         title = item.get('title', 'Unknown Title')
         source = item.get('description', item.get('source', 'Unknown Source'))
         summary = item.get('summary', '')[:300]
+        url = item.get('source_url', '#')
         
-        promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}...\n---\n"
+        promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}...\n\n[🔗 Read Full Update]({url})\n---\n"
         console.print(Markdown(promotion_msg))
