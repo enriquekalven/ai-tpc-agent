@@ -9,6 +9,9 @@ on:
 jobs:
   promote:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - uses: actions/checkout@v4
       
@@ -27,14 +30,17 @@ jobs:
           TPC_SENDER_EMAIL: ${{ secrets.TPC_SENDER_EMAIL }}
           TPC_SENDER_PASSWORD: ${{ secrets.TPC_SENDER_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -n "$GCHAT_WEBHOOK_URL" ]; then
             tpc-agent chat
           fi
           
-          # Priority: Secret > Explicit Request (ai-tpc-agent@google.com)
-          TARGET_EMAIL=${RECIPIENT_EMAIL:-"ai-tpc-agent@google.com"}
-          
+          # Email Fallback (requires user-provided secrets)
           if [ -n "$TPC_SENDER_EMAIL" ] && [ -n "$TPC_SENDER_PASSWORD" ]; then
+            TARGET_EMAIL=${RECIPIENT_EMAIL:-"ai-tpc-agent@google.com"}
             tpc-agent email "$TARGET_EMAIL"
           fi
+
+          # GitHub Issue Broadcaster (Secure, zero-config default)
+          tpc-agent github

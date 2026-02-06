@@ -43,6 +43,14 @@ def email(
     bridge.post_report(knowledge)
 
 @app.command()
+def github():
+    """Dispatch the AI Field Promotion Report as a GitHub Issue."""
+    agent = TPCAgent()
+    knowledge = agent.browse_knowledge()
+    bridge = GitHubBridge()
+    bridge.post_report(knowledge)
+
+@app.command()
 def serve():
     """Launch the ADK Agent as a local service (for Gemini integration)."""
     from google import adk
