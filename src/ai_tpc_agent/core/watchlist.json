@@ -24,11 +24,6 @@
       "feed": "https://cloud.google.com/blog/rss",
       "description": "Inside Google Cloud - 'What's New' official summaries",
       "category": "trends"
-    },
-    "search-central-updates": {
-      "feed": "https://developers.google.com/search/updates/search_docs_updates.rss",
-      "description": "Google Search Central - Developer Updates & SEO impacts",
-      "category": "trends"
     }
   },
   "roadmap_trackers": {
