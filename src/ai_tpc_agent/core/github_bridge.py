@@ -52,22 +52,21 @@ class GitHubBridge:
     def _format_markdown_report(self, knowledge: List[Dict[str, Any]]) -> str:
         report = "# 🚀 AI TPC Field Pulse\n"
         report += f"**Generated on:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} PST\n\n"
-        report += "--- \n\n"
+        report += "---\n\n"
         report += "## 🎯 Executive Synthesis\n"
         
-        # Heuristic synthesis summary
         roadmap_items = [k for k in knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
         if roadmap_items:
             report += f"Found **{len(roadmap_items)}** major roadmap shifts in the last 24 hours. "
-            report += "Key focus areas should be **Agent Standardization (ADK)** and **Partner Model Depth (Vertex AI)**.\n\n"
+            report += "Key focus areas: **Agent Standardization (ADK)** and **Partner Model Depth (Vertex AI)**.\n\n"
         else:
             report += "No major roadmap shifts detected in the last 24 hours. Review industry trends below for market context.\n\n"
 
-        report += "--- \n\n"
+        report += "---\n\n"
         
         # Roadmap Section
         report += "## 🌉 Roadmap & Release Bridge\n"
-        report += "_How to talk about these updates to the field._\n\n"
+        report += "*Synthesized for Field Promotion*\n\n"
         
         if not roadmap_items:
             report += "> _No recent roadmap items to bridge._\n\n"
@@ -89,9 +88,9 @@ class GitHubBridge:
                 elif "a2ui" in title:
                     bridge = "🖥️ **UX REVOLUTION**: Agent-Driven UI. Standardizing component rendering for agents."
 
-                report += f"### 📦 [{item['source'].upper()}] {item['title']}\n"
+                report += f"### [{item['source'].upper()}] {item['title']}\n"
                 report += f"**🚀 Field Impact:** {bridge}\n\n"
-                report += f"{item.get('summary', '')[:800]}...\n\n"
+                report += f"{item.get('summary', '')[:800]}\n\n"
                 report += f"**[🔗 Open Documentation]({item.get('source_url', '#')})**\n\n"
                 report += "---\n"
 
@@ -104,12 +103,11 @@ class GitHubBridge:
             for item in trend_items:
                 report += f"### 📰 {item.get('title', 'Market Update')}\n"
                 report += f"*Source: {item.get('description', item.get('source', 'Unknown'))}*\n\n"
-                report += f"{item.get('summary', '')[:600]}...\n\n"
+                report += f"{item.get('summary', '')[:600]}\n\n"
                 report += f"**[🔗 Read Full Update]({item.get('source_url', '#')})**\n\n"
                 report += "---\n"
 
-        report += "\n\n> [!NOTE]\n"
-        report += "> This report is synthesized by the **AI TPC Agent** based on live documentation and release feeds.\n"
+        report += "\n\n**Note:** This report is synthesized by the **AI TPC Agent** based on live documentation and release feeds.\n"
         return report
 
 # Add missing import for datetime
