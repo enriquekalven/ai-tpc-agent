@@ -2,6 +2,45 @@
 
 Technical Program Consultant (TPC) Agent designed to browse, track, and promote AI knowledge and product roadmaps for field teams.
 
+![AI TPC Agent Architecture](docs/architecture.png)
+
+## Architecture
+```mermaid
+graph TD
+    subgraph Sources
+        GC[Google Cloud Release Notes]
+        GH[GitHub Releases]
+        PP[PyPI Updates]
+    end
+
+    subgraph "AI TPC Agent Core"
+        W[Watcher: HTML & XML Scraper]
+        A[TPC Agent: Synthesis & Bridging]
+        ADK[Google ADK Framework]
+        W --> A
+        ADK --> A
+    end
+
+    subgraph Bridges
+        GI[GitHub Issues]
+        EM[Email Bridge]
+        GChat[Google Chat]
+    end
+
+    GC --> W
+    GH --> W
+    PP --> W
+    
+    A --> GI
+    A --> EM
+    A --> GChat
+    
+    subgraph "Automation & Scheduling"
+        GA[GitHub Actions Pulse]
+        GA --> |Schedule/Manual| A
+    end
+```
+
 ## Features
 - **Ecosystem Watcher**: Tracks Vertex AI, Generative AI, and Industry Blogs.
 - **Roadmap Bridger**: Translates technical roadmap updates into Field-ready talk tracks.
