@@ -43,9 +43,17 @@ def email(
     bridge.post_report(knowledge)
 
 @app.command()
+def serve():
+    """Launch the ADK Agent as a local service (for Gemini integration)."""
+    import adk
+    from .core.agent import tpc_agent
+    typer.echo("🚀 Launching AI TPC Agent via Google ADK...")
+    adk.run(tpc_agent)
+
+@app.command()
 def version():
     """Show version."""
-    typer.echo("AI TPC Agent v0.1.0")
+    typer.echo("AI TPC Agent v0.1.0 (ADK Powered)")
 
 if __name__ == "__main__":
     app()
