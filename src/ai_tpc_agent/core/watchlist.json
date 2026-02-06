@@ -1,7 +1,7 @@
 {
   "ai_knowledge_hub": {
     "vertex-ai-releases": {
-      "feed": "https://cloud.google.com/feeds/vertex-ai-release-notes.xml",
+      "feed": "https://docs.cloud.google.com/vertex-ai/docs/release-notes",
       "description": "Vertex AI - Official Release Notes & Feature Updates",
       "category": "platform"
     },
@@ -11,7 +11,7 @@
       "category": "platform"
     },
     "gemini-enterprise-releases": {
-      "feed": "https://cloud.google.com/feeds/gemini-release-notes.xml",
+      "feed": "https://docs.cloud.google.com/gemini/enterprise/docs/release-notes",
       "description": "Gemini for Google Workspace - Enterprise Update Log",
       "category": "platform"
     },
@@ -32,9 +32,19 @@
       "description": "Agent Starter Pack - Reference Architecture Roadmap",
       "category": "roadmap"
     },
-    "generative-engineering": {
-      "feed": "https://github.com/google/generative-engineering/releases.atom",
-      "description": "Generative Engineering - Tools and best practices roadmap",
+    "google-adk": {
+      "feed": "https://github.com/google/adk-python/releases.atom",
+      "description": "Google ADK - Agent Development Kit Python SDK",
+      "category": "roadmap"
+    },
+    "a2ui": {
+      "feed": "https://github.com/google/a2ui/releases.atom",
+      "description": "A2UI - Agent-Driven User Interface Toolkit",
+      "category": "roadmap"
+    },
+    "a2a": {
+      "feed": "https://github.com/a2aproject/A2A/releases.atom",
+      "description": "A2A - Agent-to-Agent Communication Protocol",
       "category": "roadmap"
     },
     "agent-cockpit": {

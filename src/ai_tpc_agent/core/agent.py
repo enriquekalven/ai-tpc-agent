@@ -53,22 +53,32 @@ class TPCTools:
             bridge_context = "GE UPDATE: New Gemini models/features. Highlight 'Context Window' and 'Reasoning Engine' improvements."
         elif any(term in title for term in ["security", "compliance", "governance"]):
             bridge_context = "GOVERNANCE: Directly addresses Enterprise Security concerns. Use to unblock FinServ/Healthcare deals."
-        elif any(term in title for term in ["claude", "anthropic"]):
+        elif any(term in title for term in ["claude", "anthropic", "opus"]):
             bridge_context = "PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity."
+        elif "adk" in title or "agent development kit" in title:
+            bridge_context = "DEV EXPERIENCE: ADK Update. Promotes standardized agent building. Essential for 'Agent-First' architecture talks."
+        elif "a2ui" in title:
+            bridge_context = "UX REVOLUTION: Agent-Driven UI (A2UI). Allows agents to render native UI components. Key for premium client demos."
+        elif "a2a" in title:
+            bridge_context = "INTEROPERABILITY: A2A Protocol. Standardizes how different agents talk to each other. Sell the 'Agentic Ecosystem' story."
             
         return bridge_context
 
 def parse_date(date_str: str) -> datetime:
-    """Very basic date parsing for Atom/RSS formats."""
+    """Very basic date parsing for Atom/RSS/ISO formats."""
     try:
-        # Atom ISO 8601
+        # ISO 8601 (from our scraper or Atom)
         if 'T' in date_str:
             return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        # RSS RFC 2822 (Simplified)
+        # RSS RFC 2822
         from email.utils import parsedate_to_datetime
         return parsedate_to_datetime(date_str)
     except Exception:
-        return datetime.now(timezone.utc) - timedelta(days=365)
+        # Secondary attempt for simple YYYY-MM-DD
+        try:
+            return datetime.strptime(date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except:
+            return datetime.now(timezone.utc) - timedelta(days=365)
 
 class TPCAgent:
     """
@@ -83,9 +93,10 @@ class TPCAgent:
     def promote_learnings(self, knowledge: List[Dict[str, Any]], days: int = 2):
         console.print(Panel.fit(f"🚀 [bold green]AI TPC AGENT: FIELD PROMOTION REPORT (Last {days} Days)[/bold green]", border_style="green"))
         
-        cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+        # Set cutoff to the start of the day 'days' ago
+        now = datetime.now(timezone.utc)
+        cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
         
-        # Filter by date
         filtered_knowledge = []
         for item in knowledge:
             item_date = parse_date(item.get('date', ''))
@@ -98,7 +109,6 @@ class TPCAgent:
 
         filtered_knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
         
-        # Internal call to bridging for the report
         console.print("\n🌉 [bold cyan]ROADMAP BRIDGE: FIELD TALK TRACKS[/bold cyan]")
         roadmap_items = [k for k in filtered_knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
         for item in roadmap_items:
@@ -114,7 +124,7 @@ class TPCAgent:
     def _print_item(self, item: Dict[str, Any]):
         title = item.get('title', 'Unknown Title')
         source = item.get('description', item.get('source', 'Unknown Source'))
-        summary = item.get('summary', '')[:300]
+        summary = item.get('summary', '')[:500]
         url = item.get('source_url', '#')
         
         promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}...\n\n[🔗 Read Full Update]({url})\n---\n"
