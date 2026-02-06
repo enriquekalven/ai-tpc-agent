@@ -51,38 +51,66 @@ class EmailBridge:
             console.print(f"[red]Failed to send email: {e}[/red]")
 
     def _format_html_report(self, knowledge: List[Dict[str, Any]]) -> str:
+        # Use simple logic since TPCAgent logic is in core/agent.py
+        # We'll just define a static helper or import it if possible
+        # For simplicity and isolation, we redefine the enhanced heuristics here
+        
         rows = ""
         for item in knowledge:
-            bridge = self._get_bridge_context(item['title'])
+            title = item.get('title', '').lower()
+            bridge = "New roadmap update detected. Review impacts on developer velocity."
+            
+            if any(term in title for term in ["agent", "builder"]):
+                bridge = "CRITICAL: Enhances Agent Builder. Field should focus on 'Low-Code to Pro-Code' transition stories."
+            elif any(term in title for term in ["gemini", "ge", "generative engine"]):
+                bridge = "GE UPDATE: New Gemini models/features. Highlight 'Context Window' and 'Reasoning Engine' improvements."
+            elif any(term in title for term in ["security", "compliance", "governance"]):
+                bridge = "GOVERNANCE: Directly addresses Enterprise Security concerns. Use to unblock FinServ/Healthcare deals."
+            elif any(term in title for term in ["claude", "anthropic", "opus"]):
+                bridge = "PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity."
+            elif "adk" in title or "agent development kit" in title:
+                bridge = "DEV EXPERIENCE: ADK Update. Promotes standardized agent building."
+            elif "a2ui" in title:
+                bridge = "UX REVOLUTION: Agent-Driven UI (A2UI). Allows agents to render native UI components."
+            elif "a2a" in title:
+                bridge = "INTEROPERABILITY: A2A Protocol. Standardizes how different agents talk to each other."
+
             rows += f"""
-            <div style="margin-bottom: 20px; padding: 15px; border-left: 5px solid #4285F4; background-color: #f8f9fa;">
-                <h3 style="margin-top: 0; color: #1a73e8;">{item['title']}</h3>
-                <p style="font-size: 0.9em; color: #666;">Source: {item['description']} | Category: {item['category'].upper()}</p>
-                <p><strong>Field Impact:</strong> {bridge}</p>
-                <p>{item.get('summary', '')[:300]}...</p>
-                <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 10px 15px; background-color: #4285F4; color: white; text-decoration: none; border-radius: 4px;">Open Documentation</a>
+            <div style="margin-bottom: 25px; padding: 20px; border-left: 6px solid #4285F4; background-color: #ffffff; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h3 style="margin-top: 0; color: #1a73e8; font-size: 1.2em;">{item['title']}</h3>
+                <p style="font-size: 0.85em; color: #70757a; margin-bottom: 10px;">
+                    <strong>Source:</strong> {item.get('description', item.get('source', 'Unknown'))} | 
+                    <strong>Category:</strong> {item['category'].upper()}
+                </p>
+                <div style="background-color: #e8f0fe; padding: 12px; border-radius: 4px; border: 1px solid #d2e3fc; margin-bottom: 15px;">
+                    <p style="margin: 0; font-weight: bold; color: #1967d2;">🚀 Field Impact:</p>
+                    <p style="margin: 5px 0 0 0;">{bridge}</p>
+                </div>
+                <p style="color: #3c4043; line-height: 1.5;">{item.get('summary', '')[:500]}...</p>
+                <div style="margin-top: 15px;">
+                    <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 10px 20px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Open Full Documentation</a>
+                </div>
             </div>
             """
 
         return f"""
         <html>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                <h2 style="color: #0d6efd;">🚀 AI TPC Field Promotion Report</h2>
-                <p>The following updates have been synthesized for the field team:</p>
-                <hr>
-                {rows}
-                <br>
-                <p style="font-size: 0.8em; color: #999;">Synthesized by AI TPC Agent | {os.name}</p>
+            <body style="font-family: 'Google Sans', Roboto, Arial, sans-serif; line-height: 1.6; color: #202124; background-color: #f1f3f4; padding: 20px;">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div style="background-color: #1a73e8; color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
+                        <h1 style="margin: 0;">🚀 AI TPC Field Pulse</h1>
+                        <p style="margin: 10px 0 0 0; font-size: 1.1em;">Latest Google AI Roadmap & Market Trends</p>
+                    </div>
+                    <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px;">
+                        <p>Hello Team, here are the latest synthesized updates for the field:</p>
+                        <hr style="border: 0; border-top: 1px solid #dadce0; margin: 25px 0;">
+                        {rows}
+                    </div>
+                    <div style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #70757a;">
+                        <p>Synthesized by <strong>AI TPC Agent</strong></p>
+                        <p>This is an automated report. For support, contact the TPC team.</p>
+                    </div>
+                </div>
             </body>
         </html>
         """
-
-    def _get_bridge_context(self, title: str) -> str:
-        title_lower = title.lower()
-        if any(term in title_lower for term in ["agent", "builder"]):
-            return "CRITICAL: Enhances Agent Builder. Focus on 'Low-Code to Pro-Code' transition story."
-        if any(term in title_lower for term in ["gemini", "ge"]):
-            return "GE UPDATE: New Gemini features. Highlight Context Window and Reasoning Engine."
-        if any(term in title_lower for term in ["security", "compliance"]):
-            return "GOVERNANCE: Addresses Enterprise Security. Use to unblock FinServ/Healthcare deals."
-        return "New roadmap update detected. Review impacts on developer velocity."
