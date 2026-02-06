@@ -72,22 +72,8 @@ class GitHubBridge:
             report += "> _No recent roadmap items to bridge._\n\n"
         else:
             for item in roadmap_items:
-                title = item.get('title', '').lower()
-                bridge = "New tech detected. Review impacts on developer velocity."
+                bridge = item.get('bridge', "New tech detected. Review impacts on developer velocity.")
                 
-                if any(term in title for term in ["agent", "builder"]):
-                    bridge = "🔥 **CRITICAL**: Enhances Agent Builder. Focus on 'Low-Code to Pro-Code' transition story."
-                elif any(term in title for term in ["gemini", "ge"]):
-                    bridge = "🤖 **GE UPDATE**: New Gemini features. Highlight Context Window and Reasoning Engine."
-                elif any(term in title for term in ["security", "compliance", "iam"]):
-                    bridge = "🛡️ **GOVERNANCE**: Directly addresses Enterprise Security. Use to unblock FinServ/Healthcare deals."
-                elif any(term in title for term in ["claude", "anthropic", "opus"]):
-                    bridge = "🎨 **PARTNER DEPTH**: New Claude models on Vertex. Crucial for customers requesting model-diversity."
-                elif "adk" in title:
-                    bridge = "📦 **DEV EXPERIENCE**: ADK Update. Promotes standardized agent building across teams."
-                elif "a2ui" in title:
-                    bridge = "🖥️ **UX REVOLUTION**: Agent-Driven UI. Standardizing component rendering for agents."
-
                 report += f"### [{item['source'].upper()}] {item['title']}\n"
                 report += f"**🚀 Field Impact:** {bridge}\n\n"
                 report += f"{item.get('summary', '')[:800]}\n\n"

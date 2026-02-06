@@ -34,7 +34,7 @@ class GoogleChatBridge:
                 sections.append({
                     "header": f"🗺️ {item['source'].upper()}: {item['title']}",
                     "widgets": [
-                        {"textParagraph": {"text": self._get_bridge_context(item['title'])}},
+                        {"textParagraph": {"text": item.get('bridge', "New tech detected.")}},
                         {"buttons": [{"textButton": {"text": "OPEN DOCS", "onClick": {"openLink": {"url": item.get('source_url', 'https://cloud.google.com/vertex-ai/docs/release-notes')}}}}]}
                     ]
                 })
@@ -70,13 +70,3 @@ class GoogleChatBridge:
             console.print("[green]Successfully posted report to Google Chat.[/green]")
         except Exception as e:
             console.print(f"[red]Failed to post to Google Chat: {e}[/red]")
-
-    def _get_bridge_context(self, title: str) -> str:
-        title_lower = title.lower()
-        if any(term in title_lower for term in ["agent", "builder"]):
-            return "CRITICAL: Enhances Agent Builder. Focus on 'Low-Code to Pro-Code' transition story."
-        if any(term in title_lower for term in ["gemini", "ge"]):
-            return "GE UPDATE: New Gemini features. Highlight Context Window and Reasoning Engine."
-        if any(term in title_lower for term in ["security", "compliance"]):
-            return "GOVERNANCE: Addresses Enterprise Security. Use to unblock FinServ/Healthcare deals."
-        return "New roadmap update detected. Review impacts on developer velocity."

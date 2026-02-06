@@ -13,7 +13,8 @@ def report(days: int = typer.Option(1, "--days", "-d", help="Number of days to l
     """Generate the AI Field Promotion Report locally."""
     agent = TPCAgent()
     knowledge = agent.browse_knowledge()
-    agent.promote_learnings(knowledge, days=days)
+    synthesized = agent.synthesize_reports(knowledge)
+    agent.promote_learnings(synthesized, days=days)
 
 @app.command()
 def chat(
@@ -34,9 +35,11 @@ def chat(
     now = datetime.now(timezone.utc)
     cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
     filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
+    
+    synthesized = agent.synthesize_reports(filtered)
 
     bridge = GoogleChatBridge(webhook_url)
-    bridge.post_report(filtered)
+    bridge.post_report(synthesized)
 
 @app.command()
 def email(
@@ -54,9 +57,11 @@ def email(
     now = datetime.now(timezone.utc)
     cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
     filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
+    
+    synthesized = agent.synthesize_reports(filtered)
 
     bridge = EmailBridge(recipient, sender, password)
-    bridge.post_report(filtered)
+    bridge.post_report(synthesized)
 
 @app.command()
 def github(
@@ -71,9 +76,11 @@ def github(
     now = datetime.now(timezone.utc)
     cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
     filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
+    
+    synthesized = agent.synthesize_reports(filtered)
 
     bridge = GitHubBridge()
-    bridge.post_report(filtered)
+    bridge.post_report(synthesized)
 
 @app.command()
 def serve():

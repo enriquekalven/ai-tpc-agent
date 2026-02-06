@@ -57,23 +57,7 @@ class EmailBridge:
         
         rows = ""
         for item in knowledge:
-            title = item.get('title', '').lower()
-            bridge = "New roadmap update detected. Review impacts on developer velocity."
-            
-            if any(term in title for term in ["agent", "builder"]):
-                bridge = "CRITICAL: Enhances Agent Builder. Field should focus on 'Low-Code to Pro-Code' transition stories."
-            elif any(term in title for term in ["gemini", "ge", "generative engine"]):
-                bridge = "GE UPDATE: New Gemini models/features. Highlight 'Context Window' and 'Reasoning Engine' improvements."
-            elif any(term in title for term in ["security", "compliance", "governance"]):
-                bridge = "GOVERNANCE: Directly addresses Enterprise Security concerns. Use to unblock FinServ/Healthcare deals."
-            elif any(term in title for term in ["claude", "anthropic", "opus"]):
-                bridge = "PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity."
-            elif "adk" in title or "agent development kit" in title:
-                bridge = "DEV EXPERIENCE: ADK Update. Promotes standardized agent building."
-            elif "a2ui" in title:
-                bridge = "UX REVOLUTION: Agent-Driven UI (A2UI). Allows agents to render native UI components."
-            elif "a2a" in title:
-                bridge = "INTEROPERABILITY: A2A Protocol. Standardizes how different agents talk to each other."
+            bridge = item.get('bridge', "New roadmap update detected. Review impacts on developer velocity.")
 
             rows += f"""
             <div style="margin-bottom: 25px; padding: 20px; border-left: 6px solid #4285F4; background-color: #ffffff; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">

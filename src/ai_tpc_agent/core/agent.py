@@ -86,14 +86,48 @@ class TPCAgent:
     """
     def __init__(self):
         self.tools = TPCTools()
+        self.api_key = os.environ.get('GOOGLE_API_KEY')
+        self.client = None
+        if self.api_key:
+            try:
+                from google import genai
+                self.client = genai.Client(api_key=self.api_key)
+            except Exception:
+                pass
 
     def browse_knowledge(self) -> List[Dict[str, Any]]:
         return self.tools.browse_ai_knowledge()
 
-    def promote_learnings(self, knowledge: List[Dict[str, Any]], days: int = 2):
+    def synthesize_reports(self, knowledge: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Enriches the knowledge list with Gemini-powered summaries and bridges if available.
+        This ensures all bridges (Email, Chat, GitHub) get the same AI-powered content.
+        """
+        if not self.client:
+            # Add basic bridges if no AI is available
+            for item in knowledge:
+                if 'bridge' not in item:
+                    item['bridge'] = self.tools.bridge_roadmap_to_field(item)
+            return knowledge
+
+        console.print("[cyan]✨ Synthesizing reports with Gemini...[/cyan]")
+        for item in knowledge:
+            # Use Gemini for the field impact bridge
+            item['bridge'] = self._summarize_with_gemini(item)
+            
+            # Optionally refine the summary itself if it was very long or technical
+            if len(item.get('summary', '')) > 300:
+                try:
+                    refine_prompt = f"Summarize this for a business audience in 2 sentences focus on impact: {item['summary']}"
+                    resp = self.client.models.generate_content(model='gemini-2.0-flash-exp', contents=refine_prompt)
+                    item['summary'] = resp.text.strip()
+                except Exception:
+                    pass
+        return knowledge
+
+    def promote_learnings(self, knowledge: List[Dict[str, Any]], days: int = 1):
         console.print(Panel.fit(f"🚀 [bold green]AI TPC AGENT: FIELD PROMOTION REPORT (Last {days} Days)[/bold green]", border_style="green"))
         
-        # Set cutoff to the start of the day 'days' ago
         now = datetime.now(timezone.utc)
         cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
         
@@ -112,7 +146,7 @@ class TPCAgent:
         console.print("\n🌉 [bold cyan]ROADMAP BRIDGE: FIELD TALK TRACKS[/bold cyan]")
         roadmap_items = [k for k in filtered_knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
         for item in roadmap_items:
-            bridge = self.tools.bridge_roadmap_to_field(item)
+            bridge = self._summarize_with_gemini(item) if self.client else self.tools.bridge_roadmap_to_field(item)
             panel_content = f"**Feature:** {item['title']}\n**Field Impact:** {bridge}\n**Action:** [Open Documentation]({item.get('source_url', '#')})"
             console.print(Panel(Markdown(panel_content), title=f"[{item['source'].upper()}]", border_style="cyan"))
 
@@ -121,11 +155,51 @@ class TPCAgent:
         for item in trend_items:
             self._print_item(item)
 
+    def _summarize_with_gemini(self, item: Dict[str, Any]) -> str:
+        """Uses Gemini to generate a field-ready talk track if API key is present."""
+        if not self.client:
+            return self.tools.bridge_roadmap_to_field(item)
+        
+        try:
+            prompt = f"""
+            You are a Technical Program Consultant (TPC) for Google Cloud AI.
+            Translate the following technical update into a 'Field Talk Track' for sales and architects.
+            
+            Update Title: {item['title']}
+            Source: {item['description']}
+            Raw Content: {item.get('summary', '')[:1000]}
+            
+            Format: One concise, high-impact sentence explaining WHY this matters for customers and what the sales play is.
+            """
+            response = self.client.models.generate_content(
+                model='gemini-2.0-flash-exp',
+                contents=prompt
+            )
+            return response.text.strip()
+        except Exception as e:
+            return self.tools.bridge_roadmap_to_field(item)
+
     def _print_item(self, item: Dict[str, Any]):
         title = item.get('title', 'Unknown Title')
         source = item.get('description', item.get('source', 'Unknown Source'))
-        summary = item.get('summary', '')[:500]
-        url = item.get('source_url', '#')
         
-        promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}...\n\n[🔗 Read Full Update]({url})\n---\n"
+        # If Gemini is available, refine the summary
+        summary = item.get('summary', '')[:500]
+        if self.client:
+            try:
+                refine_prompt = f"Summarize this for a business audience in 2 sentences focus on impact: {summary}"
+                resp = self.client.models.generate_content(model='gemini-2.0-flash-exp', contents=refine_prompt)
+                summary = resp.text.strip()
+            except Exception:
+                pass
+                
+        url = item.get('source_url', '#')
+        promotion_msg = f"### {title}\n*Source: {source}*\n\n**Actionable Insight:**\n{summary}\n\n[🔗 Read Full Update]({url})\n---\n"
         console.print(Markdown(promotion_msg))
+
+# Define ADK Agent for the 'serve' command
+tpc_agent = adk.Agent(
+    name="ai-tpc-agent",
+    instructions="You are a Technical Program Consultant. You help users understand AI roadmaps and technical updates.",
+    tools=[TPCTools()]
+)
