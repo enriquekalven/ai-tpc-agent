@@ -1,0 +1,82 @@
+import requests
+import json
+from typing import List, Dict, Any
+from rich.console import Console
+
+console = Console()
+
+class GoogleChatBridge:
+    """
+    Bridge to send updates to Google Chat via Webhooks.
+    """
+    def __init__(self, webhook_url: str):
+        self.webhook_url = webhook_url
+
+    def post_report(self, knowledge: List[Dict[str, Any]]):
+        """
+        Formats and posts the report to Google Chat.
+        """
+        if not self.webhook_url:
+            console.print("[red]Error: Google Chat Webhook URL not configured.[/red]")
+            return
+
+        if not knowledge:
+            return
+
+        # Header Section
+        cards = []
+        
+        # Roadmap Bridge Section (High Priority)
+        roadmap_items = [k for k in knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
+        if roadmap_items:
+            sections = []
+            for item in roadmap_items[:3]: # Limit to top 3 for chat visibility
+                sections.append({
+                    "header": f"🗺️ {item['source'].upper()}: {item['title']}",
+                    "widgets": [
+                        {"textParagraph": {"text": self._get_bridge_context(item['title'])}},
+                        {"buttons": [{"textButton": {"text": "OPEN DOCS", "onClick": {"openLink": {"url": item.get('source_url', 'https://cloud.google.com/vertex-ai/docs/release-notes')}}}}]}
+                    ]
+                })
+            
+            cards.append({
+                "header": {"title": "AI TPC AGENT: ROADMAP BRIDGE", "subtitle": "Actionable Field Intel", "imageUrl": "https://fonts.gstatic.com/s/i/short-term/release/googleg/bolt/default/24px.svg"},
+                "sections": sections
+            })
+
+        # Market Trends Section
+        trend_items = [k for k in knowledge if k['category'] != 'roadmap']
+        if trend_items:
+            trend_sections = []
+            for item in trend_items[:3]:
+                trend_sections.append({
+                    "header": f"💡 {item['title']}",
+                    "widgets": [
+                        {"textParagraph": {"text": item.get('summary', '')[:200] + "..."}},
+                        {"buttons": [{"textButton": {"text": "READ MORE", "onClick": {"openLink": {"url": item.get('source_url', '#')}}}}]}
+                    ]
+                })
+            
+            cards.append({
+                "header": {"title": "AI KNOWLEDGE & TRENDS", "subtitle": "Market Pulse"},
+                "sections": trend_sections
+            })
+
+        message = {"cards": cards}
+        
+        try:
+            response = requests.post(self.webhook_url, json=message)
+            response.raise_for_status()
+            console.print("[green]Successfully posted report to Google Chat.[/green]")
+        except Exception as e:
+            console.print(f"[red]Failed to post to Google Chat: {e}[/red]")
+
+    def _get_bridge_context(self, title: str) -> str:
+        title_lower = title.lower()
+        if any(term in title_lower for term in ["agent", "builder"]):
+            return "CRITICAL: Enhances Agent Builder. Focus on 'Low-Code to Pro-Code' transition story."
+        if any(term in title_lower for term in ["gemini", "ge"]):
+            return "GE UPDATE: New Gemini features. Highlight Context Window and Reasoning Engine."
+        if any(term in title_lower for term in ["security", "compliance"]):
+            return "GOVERNANCE: Addresses Enterprise Security. Use to unblock FinServ/Healthcare deals."
+        return "New roadmap update detected. Review impacts on developer velocity."

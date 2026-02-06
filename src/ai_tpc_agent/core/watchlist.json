@@ -1,0 +1,31 @@
+{
+  "ai_knowledge_hub": {
+    "vertex-ai-releases": {
+      "feed": "https://cloud.google.com/feeds/vertex-ai-release-notes.xml",
+      "description": "Vertex AI - Official Release Notes & Feature Updates",
+      "category": "platform"
+    },
+    "generative-ai-releases": {
+      "feed": "https://cloud.google.com/feeds/gen-ai-release-notes.xml",
+      "description": "Generative AI on Vertex AI - Model & API updates",
+      "category": "platform"
+    },
+    "google-cloud-ai-blog": {
+      "feed": "https://cloud.google.com/blog/products/ai-machine-learning/rss",
+      "description": "Google Cloud AI Blog - Market Trends & Innovations",
+      "category": "trends"
+    }
+  },
+  "roadmap_trackers": {
+    "agent-starter-pack": {
+      "feed": "https://github.com/GoogleCloudPlatform/agent-starter-pack/releases.atom",
+      "description": "Agent Starter Pack - Reference Architecture Roadmap",
+      "category": "roadmap"
+    },
+    "generative-engineering": {
+      "feed": "https://github.com/google/generative-engineering/releases.atom",
+      "description": "Generative Engineering - Tools and best practices roadmap",
+      "category": "roadmap"
+    }
+  }
+}
