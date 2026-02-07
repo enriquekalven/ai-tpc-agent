@@ -155,12 +155,12 @@ class TPCAgent:
                 item['tags'] = []
             if len(item.get('summary', '')) > 300:
                 try:
-                    refine_prompt = f"Summarize this for a business audience in 2 sentences focus on impact: {item['summary']}"
+                    refine_prompt = f"Summarize this for a technical business audience in 3 bullet points focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use emojis for each point. Content: {item['summary']}"
                     resp = self.client.models.generate_content(model='gemini-2.0-flash-exp', contents=refine_prompt)
                     item['summary'] = resp.text.strip()
                 except Exception:
                     pass
-        tldr = 'Review the technical roadmap updates below for recent shifts in Vertex AI and the Agent Ecosystem.'
+        tldr = '🔍 Review the technical roadmap updates below for recent shifts in Vertex AI and the Agent Ecosystem.'
         if self.client and knowledge:
             try:
                 titles = '\n'.join([f"- {k['title']} ({k['source']})" for k in knowledge[:10]])
@@ -177,8 +177,8 @@ class TPCAgent:
                 </context>
                 
                 <task>
-                Provide a high-level 'Executive TLDR' (2-3 sentences) summarizing the theme of these recent AI updates.
-                Focus on the collective impact for the field team and customers.
+                Provide a high-level 'Executive Synthesis' (2-3 sentences) summarizing the theme of these recent AI updates.
+                Focus on the collective impact for the field team and customers. Use professional but engaging language with 2-3 relevant emojis.
                 </task>
 
                 <constraints>
@@ -250,7 +250,8 @@ class TPCAgent:
             </task>
 
             <format>
-            One concise, high-impact sentence explaining WHY this matters for customers and what the sales play is.
+            One concise, high-impact talk track (1-2 sentences) explaining WHY this matters for customers. 
+            Include 1-2 relevant emojis to make it stand out in field reports.
             </format>
             """
             response = self.client.models.generate_content(model='gemini-2.0-flash-exp', contents=prompt)

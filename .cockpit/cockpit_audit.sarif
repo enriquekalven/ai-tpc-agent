@@ -1,0 +1,89 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "AgentOps Cockpit"
+        }
+      },
+      "results": [
+        {
+          "ruleId": "missing_resiliency_pattern",
+          "message": {
+            "text": "Add @retry(wait=wait_exponential(min=1, max=60), stop=stop_after_attempt(5)) to handle rate limits efficiently."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/Users/enriq/Documents/git/ai-tpc-agent/pyproject.toml"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "context_caching_opportunity",
+          "message": {
+            "text": "Implement Vertex AI Context Caching to reduce repeated prefix costs by 90%."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/Users/enriq/Documents/git/ai-tpc-agent/src/ai_tpc_agent/core/agent.py"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "context_caching_opportunity",
+          "message": {
+            "text": "Implement Vertex AI Context Caching to reduce repeated prefix costs by 90%."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/Users/enriq/Documents/git/ai-tpc-agent/src/ai_tpc_agent/core/email_bridge.py"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "context_caching_opportunity",
+          "message": {
+            "text": "Large static system instructions detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ":1"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "context_caching_opportunity",
+          "message": {
+            "text": "Large static system instructions detected"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": ":1"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

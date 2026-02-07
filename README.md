@@ -61,9 +61,13 @@ The agent's **Watcher** engine wakes up (via GitHub Actions) and uses custom scr
 
 ### 2. AI Synthesis (The "Brain")
 Once retrieval is complete, the raw data is passed to **Google Gemini**. The model performs "TPC Reasoning":
-*   **Summarization**: Condenses dense technical notes into 2-sentence business focus.
-*   **Bridging**: It identifies the "Sales Play" (e.g., matching a security feature to a FinServ deal blocker).
-*   **Formatting**: Cleans the data into email-friendly and markdown-ready blocks.
+*   **Deep Extraction**: Each technical note is analyzed and converted into a clear, 3-bullet points overview:
+    *   **Key Feature**: Distills the technical essence.
+    *   **Customer Value**: Quantifies the business impact.
+    *   **Sales Play**: Provides the actionable strategy for field teams.
+*   **Bridging**: Automatically identifies High-Impact "Field Talk Tracks" with relevant emojis to capture attention during synthesis.
+*   **Safety First**: Integrates a **Hardened PII Scrubber** and **Prompt Injection Validator** to ensure secure, enterprise-grade summaries.
+*   **Formatting**: Cleans the data into premium HTML (for Email) and Markdown (for GitHub/Chat) with white-space preservation.
 
 ### 3. Field Promotion (The "Bridges")
 The synthesized intel is pushed through various communication bridges:

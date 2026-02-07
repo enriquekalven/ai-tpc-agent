@@ -65,7 +65,7 @@ class GitHubBridge:
                 bridge = item.get('bridge', 'New tech detected. Review impacts on developer velocity.')
                 report += f"#### {item['title']} {tags_str}\n"
                 report += f'**🚀 Field Impact:** {bridge}\n\n'
-                report += f"{item.get('summary', '')[:800]}\n\n"
+                report += f"{item.get('summary', '')}\n\n"
                 report += f"**[🔗 Open Documentation]({item.get('source_url', '#')})**\n\n"
             report += '---\n'
         report += '\n\n**Note:** This report is synthesized by the **AI TPC Agent** based on live documentation and release feeds.\n'
