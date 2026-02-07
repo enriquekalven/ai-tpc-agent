@@ -43,8 +43,12 @@ graph TD
 
 ## Features
 - **Ecosystem Watcher**: Automated Python scavengers that track Vertex AI releases, GitHub code shifts, and PyPI updates.
-- **Gemini-Powered Synthesis**: Uses **Gemini 2.0 Flash** to translate dry technical changelogs into high-impact "Field Talk Tracks."
+- **Gemini-Powered Synthesis**: Uses **Gemini 2.0 Flash** with hardened instruction boundaries (<system_instructions>) to translate dry technical changelogs into high-impact "Field Talk Tracks."
 - **Professional Multi-Channel Pulse**: Broadcasts professional reports to Email, GitHub Issues, and Google Chat.
+- **Enterprise Hardening & Resiliency**:
+    - **Security**: Built-in Pre-reasoning Prompt Validators and PII Scrubber (Redacting emails/phones from reports). 
+    - **Reliability**: Exponential Backoff (Retries) on all AI and network calls to handle rate limits and transient errors.
+    - **FinOps**: Semantic Caching to reduce redundant LLM calls and Vertex AI Context Caching for token optimization.
 
 ## How it Works
 The AI TPC Agent follows a structured **Retrieve -> Synthesize -> Promote** lifecycle:

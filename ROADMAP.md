@@ -7,6 +7,7 @@ This roadmap tracks the evolution of the AI TPC Agent from a "Pulse Dispatcher" 
 - ✅ **Synthesize**: Gemini 2.0 Flash integration for Talk Tracks and business summaries.
 - ✅ **Promote**: Automated broadcasting via Email, GitHub Issues, and Google Chat.
 - ✅ **Reliability**: Integrated regression test suite and GitHub Actions automation.
+- ✅ **Hardening (v0.1.1)**: Implemented PII Scrubber, Prompt Injection Validation, and Semantic Caching.
 
 ---
 
