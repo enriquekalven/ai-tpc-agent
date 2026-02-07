@@ -52,3 +52,46 @@ def test_dispatch_alert(mock_console):
     tools.dispatch_alert('HIGH', 'Critical Security Breach')
     # Verify console.print was called
     assert mock_console.print.called
+
+def test_synthesize_reports_no_client():
+    agent = TPCAgent()
+    agent.client = None
+    knowledge = [{'title': 'Agent Builder Update', 'summary': 'Detailed technical content...', 'source': 'google-cloud'}]
+    result = agent.synthesize_reports(knowledge)
+    assert len(result['items']) == 1
+    assert 'Agent Builder' in result['items'][0]['bridge']
+    assert result['tldr'] == '🔍 Review the technical roadmap updates below for recent shifts in Vertex AI and the Agent Ecosystem.'
+
+@patch('ai_tpc_agent.core.agent.TPCAgent._summarize_with_gemini')
+@patch('ai_tpc_agent.core.agent.TPCAgent._scrub_pii')
+def test_synthesize_reports_with_client(mock_scrub, mock_summarize):
+    agent = TPCAgent()
+    mock_client = MagicMock()
+    agent.client = mock_client
+    
+    mock_summarize.return_value = "This matters because of X 🚀"
+    mock_scrub.side_effect = lambda x: x
+
+    # Mock Gemini responses for Tags, Summary Refinement, and TLDR
+    mock_resp_tags = MagicMock()
+    mock_resp_tags.text = "Security, Governance"
+    
+    mock_resp_summary = MagicMock()
+    mock_resp_summary.text = "* Key Feature: A\n* Customer Value: B\n* Sales Play: C"
+    
+    mock_resp_tldr = MagicMock()
+    mock_resp_tldr.text = "Executive Summary with 📊"
+    
+    mock_client.models.generate_content.side_effect = [
+        mock_resp_tags,
+        mock_resp_summary,
+        mock_resp_tldr
+    ]
+    
+    knowledge = [{'title': 'Security Update', 'summary': 'A very long summary ' * 50, 'source': 'gemini'}]
+    result = agent.synthesize_reports(knowledge)
+    
+    assert result['items'][0]['bridge'] == "This matters because of X 🚀"
+    assert result['items'][0]['tags'] == ["Security", "Governance"]
+    assert "Key Feature" in result['items'][0]['summary']
+    assert result['tldr'] == "Executive Summary with 📊"
