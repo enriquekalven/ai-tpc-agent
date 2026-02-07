@@ -18,7 +18,7 @@ class EmailBridge:
         self.smtp_server = smtp_server
         self.smtp_port = smtp_port
 
-    def post_report(self, knowledge: List[Dict[str, Any]]):
+    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str = None, date_range: str = None):
         """
         Formats and sends the report via Email.
         """
@@ -33,10 +33,13 @@ class EmailBridge:
             msg = MIMEMultipart()
             msg['From'] = f"AI TPC Agent <{self.sender_email}>"
             msg['To'] = self.recipient
-            msg['Subject'] = f"🚀 AI TPC Pulse: {len(knowledge)} New Updates detected"
+            subject = f"🚀 AI TPC Pulse: {len(knowledge)} New Updates"
+            if date_range:
+                subject += f" ({date_range})"
+            msg['Subject'] = subject
 
             # Create HTML content
-            html_content = self._format_html_report(knowledge)
+            html_content = self._format_html_report(knowledge, tldr, date_range)
             msg.attach(MIMEText(html_content, 'html'))
 
             # Send Email
@@ -50,11 +53,7 @@ class EmailBridge:
         except Exception as e:
             console.print(f"[red]Failed to send email: {e}[/red]")
 
-    def _format_html_report(self, knowledge: List[Dict[str, Any]]) -> str:
-        # Use simple logic since TPCAgent logic is in core/agent.py
-        # We'll just define a static helper or import it if possible
-        # For simplicity and isolation, we redefine the enhanced heuristics here
-        
+    def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str = None, date_range: str = None) -> str:
         rows = ""
         for item in knowledge:
             bridge = item.get('bridge', "New roadmap update detected. Review impacts on developer velocity.")
@@ -77,6 +76,15 @@ class EmailBridge:
             </div>
             """
 
+        tldr_sec = f"""
+        <div style="background-color: #fff7e6; border: 1px solid #ffe7ba; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+            <h2 style="margin-top: 0; color: #d46b08; font-size: 1.1em;">🎯 Executive TLDR</h2>
+            <p style="margin: 0; color: #595959; font-style: italic;">{tldr}</p>
+        </div>
+        """ if tldr else ""
+
+        date_line = f"<p style='margin: 10px 0 0 0; font-size: 0.9em; opacity: 0.8;'>Pulse Period: {date_range}</p>" if date_range else ""
+
         return f"""
         <html>
             <body style="font-family: 'Google Sans', Roboto, Arial, sans-serif; line-height: 1.6; color: #202124; background-color: #f1f3f4; padding: 20px;">
@@ -84,8 +92,10 @@ class EmailBridge:
                     <div style="background-color: #1a73e8; color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
                         <h1 style="margin: 0;">🚀 AI TPC Field Pulse</h1>
                         <p style="margin: 10px 0 0 0; font-size: 1.1em;">Latest Google AI Roadmap & Market Trends</p>
+                        {date_line}
                     </div>
                     <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px;">
+                        {tldr_sec}
                         <p>Hello Team, here are the latest synthesized updates for the field:</p>
                         <hr style="border: 0; border-top: 1px solid #dadce0; margin: 25px 0;">
                         {rows}

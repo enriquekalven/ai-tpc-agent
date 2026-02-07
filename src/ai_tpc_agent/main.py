@@ -13,7 +13,14 @@ def report(days: int = typer.Option(1, "--days", "-d", help="Number of days to l
     """Generate the AI Field Promotion Report locally."""
     agent = TPCAgent()
     knowledge = agent.browse_knowledge()
-    synthesized = agent.synthesize_reports(knowledge)
+    
+    from .core.agent import parse_date
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
+    filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
+    
+    synthesized = agent.synthesize_reports(filtered)
     agent.promote_learnings(synthesized, days=days)
 
 @app.command()
@@ -39,7 +46,7 @@ def chat(
     synthesized = agent.synthesize_reports(filtered)
 
     bridge = GoogleChatBridge(webhook_url)
-    bridge.post_report(synthesized)
+    bridge.post_report(synthesized.get('items', []))
 
 @app.command()
 def email(
@@ -59,9 +66,14 @@ def email(
     filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
     
     synthesized = agent.synthesize_reports(filtered)
+    
+    # Calculate date range string
+    start_date = cutoff.strftime("%Y-%m-%d")
+    end_date = now.strftime("%Y-%m-%d")
+    date_range = f"{start_date} to {end_date}"
 
     bridge = EmailBridge(recipient, sender, password)
-    bridge.post_report(synthesized)
+    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range)
 
 @app.command()
 def github(
@@ -79,8 +91,14 @@ def github(
     
     synthesized = agent.synthesize_reports(filtered)
 
+    # Calculate date range string
+    start_date = cutoff.strftime("%Y-%m-%d")
+    end_date = now.strftime("%Y-%m-%d")
+    date_range = f"{start_date} to {end_date}"
+
     bridge = GitHubBridge()
-    bridge.post_report(synthesized)
+    # We'll update post_report to handle duration as well if needed
+    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range)
 
 @app.command()
 def serve():
