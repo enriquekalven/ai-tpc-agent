@@ -24,7 +24,7 @@ class EmailBridge:
         self.smtp_port = smtp_port
         self.context_cache = None
         if ContextCacheConfig:
-            self.context_cache = ContextCacheConfig(ttl_seconds=3600, cache_type='semantic')
+            self.context_cache = ContextCacheConfig(ttl_seconds=3600)
 
     @retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))
     def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None):
