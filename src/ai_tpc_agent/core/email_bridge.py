@@ -64,7 +64,7 @@ class EmailBridge:
                 grouped_knowledge[source] = []
             grouped_knowledge[source].append(item)
 
-        # Color Mapping System
+        # Enhanced Color Mapping
         color_map = {
             'Gemini': '#4f46e5',   # Indigo
             'Vertex': '#0ea5e9',   # Sky Blue
@@ -76,98 +76,102 @@ class EmailBridge:
 
         sections = ''
         for source, items in grouped_knowledge.items():
-            # Determine section color
             card_color = '#4285F4' # Default Google Blue
             for key, val in color_map.items():
                 if key.lower() in source.lower():
                     card_color = val
                     break
 
-            sections += f'\n            <div style="margin-top: 40px; margin-bottom: 20px;">\n                <h2 style="color: {card_color}; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid {card_color}33; padding-bottom: 8px;">\n                    📦 {source}\n                </h2>\n            </div>\n            '
+            sections += f'\n            <div style="margin-top: 50px; margin-bottom: 25px;">\n                <h2 style="color: {card_color}; font-size: 1.1em; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; border-left: 5px solid {card_color}; padding-left: 15px;">\n                    {source}\n                </h2>\n            </div>\n            '
             for item in items:
                 bridge = item.get('bridge', 'New roadmap update detected.')
-                # Tag color logic
                 tags_html = ''
                 item_tags = item.get('tags', [])
+                
+                # Priority Detection
+                priority_color = '#64748b' # Default Slate
+                priority_label = 'STANDARD'
+                if any(x in str(item_tags) for x in ['Security', 'Governance']):
+                    priority_color = '#e11d48'
+                    priority_label = 'MISSION CRITICAL'
+                elif 'Performance' in str(item_tags):
+                    priority_color = '#f59e0b'
+                    priority_label = 'HIGH IMPACT'
+
                 for t in item_tags:
-                    tag_bg = '#f1f3f4'
-                    tag_text = '#5f6368'
-                    if 'Security' in t: tag_bg, tag_text = '#fee2e2', '#b91c1c'
-                    elif 'Governance' in t: tag_bg, tag_text = '#e0e7ff', '#4338ca'
-                    elif 'Performance' in t: tag_bg, tag_text = '#ecfdf5', '#047857'
-                    
-                    tags_html += f'<span style="background-color: {tag_bg}; color: {tag_text}; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; margin-right: 5px; font-weight: 500;">{t}</span>'
+                    tags_html += f'<span style="background-color: #f1f3f4; color: #5f6368; padding: 4px 10px; border-radius: 4px; font-size: 0.7em; margin-right: 6px; font-weight: 700; text-transform: uppercase;">{t}</span>'
 
-                # Premium Flashcard Layout (Interactive Expand)
+                # Premium Dual-Face Flashcard (Folded Design for maximum compatibility)
                 sections += f'''
-                <div style="margin-bottom: 25px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; overflow: hidden; transition: transform 0.2s;">
-                    <div style="border-top: 6px solid {card_color}; padding: 25px;">
-                        <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 1.2em; font-weight: 600;">{item['title']}</h3>
-                        <div style="margin-bottom: 18px;">{tags_html}</div>
-                        
-                        <!-- Front of Card: Actionable Insight -->
-                        <div style="background-color: {card_color}08; padding: 15px; border-radius: 8px; border-left: 4px solid {card_color}; margin-bottom: 0;">
-                            <p style="margin: 0; font-weight: 700; color: {card_color}; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px;">🚀 FIELD IMPACT</p>
-                            <p style="margin: 8px 0 0 0; color: #374151; font-weight: 500; line-height: 1.5;">{bridge}</p>
+                <div style="margin-bottom: 40px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; background-color: #ffffff;">
+                    
+                    <!-- TOP SECTION: THE FRONT (Sales/Field) -->
+                    <div style="padding: 30px; border-top: 8px solid {card_color};">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                            <h3 style="margin: 0; color: #111827; font-size: 1.3em; font-weight: 800; flex: 1; line-height: 1.2;">{item['title']}</h3>
+                            <span style="background-color: {priority_color}15; color: {priority_color}; padding: 4px 8px; border-radius: 4px; font-size: 0.65em; font-weight: 900; letter-spacing: 0.05em; margin-left: 15px; border: 1px solid {priority_color}33;">{priority_label}</span>
                         </div>
+                        <div style="margin-bottom: 20px;">{tags_html}</div>
+                        
+                        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid {card_color};">
+                            <p style="margin: 0; font-weight: 800; color: {card_color}; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">🚀 FIELD FRONT: IMPACT & ACTION</p>
+                            <p style="margin: 0; color: #1e293b; font-weight: 500; font-size: 1.1em; line-height: 1.5;">{bridge}</p>
+                        </div>
+                    </div>
 
-                        <!-- Interactive Back of Card (Expandable Section) -->
-                        <details style="margin-top: 15px; cursor: pointer;">
-                            <summary style="font-size: 0.85em; font-weight: 600; color: {card_color}; outline: none; list-style: none;">
-                                <span style="display: inline-block; padding: 6px 12px; border: 1px solid {card_color}4d; border-radius: 6px; background-color: white;">
-                                    🔄 Flip for Technical Specs
-                                </span>
-                            </summary>
-                            <div style="margin-top: 15px; padding: 15px; background-color: #f9fafb; border-radius: 8px; border: 1px dashed #d1d5db; color: #4b5563; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap;">
-                                {item.get('summary', 'Technical specifications for this update are being finalized.')}
-                            </div>
-                        </details>
-
-                        <div style="margin-top: 20px;">
-                            <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 10px 20px; background-color: {card_color}; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.9em; box-shadow: 0 2px 4px {card_color}33;">Open Full Documentation</a>
+                    <!-- REVERSE SECTION: THE BACK (Technical Deep Dive) -->
+                    <div style="background-color: #1e293b; color: #e2e8f0; padding: 25px 30px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px; opacity: 0.9;">
+                            <span style="font-size: 1.2em; margin-right: 10px;">⚙️</span>
+                            <span style="font-size: 0.75em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">TECHNICAL SPECIFICATIONS</span>
+                        </div>
+                        <div style="color: #94a3b8; font-size: 0.9em; line-height: 1.7; font-family: 'Roboto Mono', monospace;">
+                            {item.get('summary', 'Detailed technical alignment for this release is currently being processed by the TPC Agent.')}
+                        </div>
+                        <div style="margin-top: 25px; border-top: 1px solid #334155; padding-top: 20px;">
+                            <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 12px 24px; background-color: #384455; color: white; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 0.85em; border: 1px solid #475569; transition: background 0.2s;">Open Engineering Docs</a>
                         </div>
                     </div>
                 </div>
                 '''
 
         tldr_sec = f'''
-        <div style="background-color: #fffbeb; border: 1px solid #fde68a; padding: 25px; border-radius: 12px; margin-bottom: 40px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-            <h2 style="margin: 0 0 12px 0; color: #92400e; font-size: 1.1em; display: flex; align-items: center;">
-                <span style="font-size: 1.4em; margin-right: 10px;">🎯</span> Executive Synthesis
-            </h2>
-            <p style="margin: 0; color: #451a03; font-weight: 400; line-height: 1.6; font-size: 1em;">{tldr}</p>
+        <div style="background: linear-gradient(to right, #fffbeb, #fef3c7); border: 2px solid #fde68a; padding: 30px; border-radius: 16px; margin-bottom: 45px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <div style="background-color: #fbbf24; color: #92400e; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4em; margin-right: 15px;">🎯</div>
+                <h2 style="margin: 0; color: #92400e; font-size: 1.25em; font-weight: 800; letter-spacing: -0.5px;">Executive Synthesis</h2>
+            </div>
+            <p style="margin: 0; color: #451a03; font-weight: 500; line-height: 1.7; font-size: 1.1em; font-style: italic;">"{tldr}"</p>
         </div>
         ''' if tldr else ''
 
-        date_line = f"<p style='margin: 12px 0 0 0; font-size: 0.95em; opacity: 0.85; font-weight: 300;'>Pulse Period: {date_range}</p>" if date_range else ''
+        date_line = f"<div style='margin-top: 15px; display: inline-block; background-color: rgba(255,255,255,0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.85em; font-weight: 500;'>ACTIVE PULSE: {date_range}</div>" if date_range else ''
 
         return f"""
         <html>
             <head>
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-                    body {{ font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }}
-                    summary::-webkit-details-marker {{ display: none; }}
-                </style>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
             </head>
-            <body style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #111827; background-color: #f3f4f6; padding: 20px;">
-                <div style="max-width: 800px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);">
-                    <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 50px 40px; text-align: center;">
-                        <h1 style="margin: 0; font-size: 2.2em; font-weight: 800; letter-spacing: -1px;">📡 AI TPC FIELD PULSE</h1>
-                        <p style="margin: 12px 0 0 0; font-size: 1.1em; font-weight: 400; opacity: 0.9;">Premium Intel for Google Cloud Architects</p>
+            <body style="font-family: 'Inter', -apple-system, sans-serif; line-height: 1.6; color: #111827; background-color: #f1f5f9; padding: 20px; margin: 0;">
+                <div style="max-width: 800px; margin: 40px auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);">
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; padding: 60px 50px; text-align: left;">
+                        <h1 style="margin: 0; font-size: 2.6em; font-weight: 800; letter-spacing: -1.5px; text-transform: uppercase;">📡 AI TPC FIELD PULSE</h1>
+                        <p style="margin: 10px 0 0 0; font-size: 1.2em; font-weight: 300; opacity: 0.8; letter-spacing: 0.5px;">Synthesized Intel for High-Velocity Teams</p>
                         {date_line}
                     </div>
-                    <div style="padding: 50px 40px;">
+                    <div style="padding: 60px 50px;">
                         {tldr_sec}
-                        <p style="color: #6b7280; margin-bottom: 35px; font-weight: 500;">Hello Team, the TPC Agent has synthesized the following high-impact shifts in the ecosystem:</p>
+                        <p style="color: #64748b; margin-bottom: 40px; font-weight: 600; font-size: 1em; text-transform: uppercase; letter-spacing: 1.5px;">Latest Roadmap Transitions</p>
                         {sections}
                     </div>
-                    <div style="background-color: #f9fafb; padding: 40px; text-align: center; border-top: 1px solid #e5e7eb;">
-                        <p style="margin: 0; font-size: 0.9em; color: #4b5563;">
-                            Synthesized by <strong style="color: #1a73e8;">AI TPC Agent</strong> using Gemini 2.5 Flash
+                    <div style="background-color: #0f172a; padding: 50px; text-align: center; color: white;">
+                        <p style="margin: 0; font-size: 0.9em; color: #94a3b8; font-weight: 500;">
+                            Generated by <strong style="color: #3b82f6;">AI TPC Agent</strong> • Gemini 2.5 Flash Engine
                         </p>
-                        <p style="margin: 12px 0 0 0; font-size: 0.8em; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">
-                            Mission Critical • Confidential • Field Pulse
+                        <p style="margin: 15px 0 0 0; font-size: 0.75em; color: #475569; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700;">
+                            MISSION CRITICAL • GOOGLE CLOUD CONFIDENTIAL
                         </p>
                     </div>
                 </div>
