@@ -60,46 +60,32 @@ class GitHubBridge:
         if tldr:
             report += f"> {tldr}\n\n"
         else:
-            roadmap_items = [k for k in knowledge if k['category'] == 'roadmap' or 'release' in k['source']]
-            if roadmap_items:
-                report += f"Found **{len(roadmap_items)}** major roadmap shifts. "
-                report += "Key focus areas: **Agent Standardization (ADK)** and **Partner Model Depth (Vertex AI)**.\n\n"
-            else:
-                report += "No major roadmap shifts detected. Review industry trends below for market context.\n\n"
+            report += "Review industry trends and roadmap shifts below for market context.\n\n"
 
         report += "---\n\n"
         
-        # Roadmap Section
-        report += "## 🌉 Roadmap & Release Bridge\n"
-        report += "*Synthesized for Field Promotion*\n\n"
-        
-        if not roadmap_items:
-            report += "> _No recent roadmap items to bridge._\n\n"
-        else:
-            for item in roadmap_items:
+        # Grouping logic
+        grouped_knowledge = {}
+        for item in knowledge:
+            source = item.get('source', 'General Update').replace('-', ' ').title()
+            if source not in grouped_knowledge:
+                grouped_knowledge[source] = []
+            grouped_knowledge[source].append(item)
+
+        report += "## 🗺️ Service & Roadmap Updates\n"
+        report += "*Grouped by Knowledge Stream*\n\n"
+
+        for source, items in grouped_knowledge.items():
+            report += f"### 📦 {source}\n"
+            for item in items:
+                tags_str = " ".join([f"`{t}`" for t in item.get('tags', [])])
                 bridge = item.get('bridge', "New tech detected. Review impacts on developer velocity.")
                 
-                report += f"### [{item['source'].upper()}] {item['title']}\n"
+                report += f"#### {item['title']} {tags_str}\n"
                 report += f"**🚀 Field Impact:** {bridge}\n\n"
                 report += f"{item.get('summary', '')[:800]}\n\n"
                 report += f"**[🔗 Open Documentation]({item.get('source_url', '#')})**\n\n"
-                report += "---\n"
-
-        # Trends Section
-        report += "\n## 💡 AI Knowledge & Market Trends\n"
-        trend_items = [k for k in knowledge if k['category'] != 'roadmap']
-        if not trend_items:
-            report += "> _No new industry trends detected today._\n"
-        else:
-            for item in trend_items:
-                report += f"### 📰 {item.get('title', 'Market Update')}\n"
-                report += f"*Source: {item.get('description', item.get('source', 'Unknown'))}*\n\n"
-                report += f"{item.get('summary', '')[:600]}\n\n"
-                report += f"**[🔗 Read Full Update]({item.get('source_url', '#')})**\n\n"
-                report += "---\n"
+            report += "---\n"
 
         report += "\n\n**Note:** This report is synthesized by the **AI TPC Agent** based on live documentation and release feeds.\n"
         return report
-
-# Add missing import for datetime
-from datetime import datetime

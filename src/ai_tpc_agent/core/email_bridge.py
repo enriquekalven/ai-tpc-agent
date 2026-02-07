@@ -54,32 +54,46 @@ class EmailBridge:
             console.print(f"[red]Failed to send email: {e}[/red]")
 
     def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str = None, date_range: str = None) -> str:
-        rows = ""
+        # Grouping logic
+        grouped_knowledge = {}
         for item in knowledge:
-            bridge = item.get('bridge', "New roadmap update detected. Review impacts on developer velocity.")
+            source = item.get('source', 'General Update').replace('-', ' ').title()
+            if source not in grouped_knowledge:
+                grouped_knowledge[source] = []
+            grouped_knowledge[source].append(item)
 
-            rows += f"""
-            <div style="margin-bottom: 25px; padding: 20px; border-left: 6px solid #4285F4; background-color: #ffffff; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <h3 style="margin-top: 0; color: #1a73e8; font-size: 1.2em;">{item['title']}</h3>
-                <p style="font-size: 0.85em; color: #70757a; margin-bottom: 10px;">
-                    <strong>Source:</strong> {item.get('description', item.get('source', 'Unknown'))} | 
-                    <strong>Category:</strong> {item['category'].upper()}
-                </p>
-                <div style="background-color: #e8f0fe; padding: 12px; border-radius: 4px; border: 1px solid #d2e3fc; margin-bottom: 15px;">
-                    <p style="margin: 0; font-weight: bold; color: #1967d2;">🚀 Field Impact:</p>
-                    <p style="margin: 5px 0 0 0;">{bridge}</p>
-                </div>
-                <p style="color: #3c4043; line-height: 1.5;">{item.get('summary', '')[:500]}...</p>
-                <div style="margin-top: 15px;">
-                    <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 10px 20px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Open Full Documentation</a>
-                </div>
+        sections = ""
+        for source, items in grouped_knowledge.items():
+            sections += f"""
+            <div style="margin-top: 40px; margin-bottom: 20px;">
+                <h2 style="color: #5f6368; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #e8eaed; padding-bottom: 8px;">
+                    📦 {source}
+                </h2>
             </div>
             """
+            for item in items:
+                bridge = item.get('bridge', "New roadmap update detected. Review impacts on developer velocity.")
+                tags_html = "".join([f'<span style="background-color: #f1f3f4; color: #5f6368; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; margin-right: 5px; border: 1px solid #dadce0;">{t}</span>' for t in item.get('tags', [])])
+
+                sections += f"""
+                <div style="margin-bottom: 25px; padding: 20px; border-left: 6px solid #4285F4; background-color: #ffffff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top: 1px solid #f1f3f4; border-right: 1px solid #f1f3f4; border-bottom: 1px solid #f1f3f4;">
+                    <h3 style="margin-top: 0; color: #1a73e8; font-size: 1.15em;">{item['title']}</h3>
+                    <div style="margin-bottom: 15px;">{tags_html}</div>
+                    <div style="background-color: #e8f0fe; padding: 12px; border-radius: 4px; border: 1px solid #d2e3fc; margin-bottom: 15px;">
+                        <p style="margin: 0; font-weight: bold; color: #1967d2; font-size: 0.9em;">🚀 FIELD IMPACT:</p>
+                        <p style="margin: 5px 0 0 0; color: #202124;">{bridge}</p>
+                    </div>
+                    <p style="color: #3c4043; line-height: 1.5; font-size: 0.95em;">{item.get('summary', '')[:500]}...</p>
+                    <div style="margin-top: 15px;">
+                        <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 8px 16px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.9em;">Open Documentation</a>
+                    </div>
+                </div>
+                """
 
         tldr_sec = f"""
         <div style="background-color: #fff7e6; border: 1px solid #ffe7ba; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
             <h2 style="margin-top: 0; color: #d46b08; font-size: 1.1em;">🎯 Executive TLDR</h2>
-            <p style="margin: 0; color: #595959; font-style: italic;">{tldr}</p>
+            <p style="margin: 0; color: #595959; font-style: italic; line-height: 1.5;">{tldr}</p>
         </div>
         """ if tldr else ""
 
@@ -87,22 +101,25 @@ class EmailBridge:
 
         return f"""
         <html>
-            <body style="font-family: 'Google Sans', Roboto, Arial, sans-serif; line-height: 1.6; color: #202124; background-color: #f1f3f4; padding: 20px;">
-                <div style="max-width: 800px; margin: 0 auto;">
-                    <div style="background-color: #1a73e8; color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
-                        <h1 style="margin: 0;">🚀 AI TPC Field Pulse</h1>
-                        <p style="margin: 10px 0 0 0; font-size: 1.1em;">Latest Google AI Roadmap & Market Trends</p>
+            <body style="font-family: 'Google Sans', Roboto, Arial, sans-serif; line-height: 1.6; color: #202124; background-color: #f8f9fa; padding: 20px;">
+                <div style="max-width: 800px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    <div style="background-color: #1a73e8; color: white; padding: 40px 30px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 2em; letter-spacing: -0.5px;">🚀 AI TPC Field Pulse</h1>
+                        <p style="margin: 10px 0 0 0; font-size: 1.1em; font-weight: 300; opacity: 0.9;">Synthesized Intel for Google Cloud AI Teams</p>
                         {date_line}
                     </div>
-                    <div style="background-color: #ffffff; padding: 30px; border-radius: 0 0 8px 8px;">
+                    <div style="padding: 40px 30px;">
                         {tldr_sec}
-                        <p>Hello Team, here are the latest synthesized updates for the field:</p>
-                        <hr style="border: 0; border-top: 1px solid #dadce0; margin: 25px 0;">
-                        {rows}
+                        <p style="color: #5f6368; margin-bottom: 30px;">Hello Team, here are the latest synthesized updates grouped by service stream:</p>
+                        {sections}
                     </div>
-                    <div style="text-align: center; margin-top: 20px; font-size: 0.8em; color: #70757a;">
-                        <p>Synthesized by <strong>AI TPC Agent</strong></p>
-                        <p>This is an automated report. For support, contact the TPC team.</p>
+                    <div style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dadce0;">
+                        <p style="margin: 0; font-size: 0.85em; color: #70757a;">
+                            Synthesized by <strong>AI TPC Agent</strong> using Gemini 2.0 Flash
+                        </p>
+                        <p style="margin: 10px 0 0 0; font-size: 0.8em; color: #9aa0a6;">
+                            This is an automated field enablement pulse.
+                        </p>
                     </div>
                 </div>
             </body>

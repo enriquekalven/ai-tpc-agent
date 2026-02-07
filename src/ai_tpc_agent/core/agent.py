@@ -100,7 +100,7 @@ class TPCAgent:
 
     def synthesize_reports(self, knowledge: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Enriches the knowledge list with Gemini-powered summaries and bridges.
+        Enriches the knowledge list with Gemini-powered summaries, bridges, and tags.
         Returns a dictionary containing:
         - 'items': The enriched list of items
         - 'tldr': A high-level executive summary of all updates
@@ -113,9 +113,21 @@ class TPCAgent:
         for item in knowledge:
             if not self.client:
                 item['bridge'] = self.tools.bridge_roadmap_to_field(item)
+                item['tags'] = []
                 continue
 
+            # Generate Field Impact Bridge
             item['bridge'] = self._summarize_with_gemini(item)
+            
+            # Generate Tags (e.g., Governance, Security, Performance)
+            try:
+                tag_prompt = f"Categorize this technical update with 1-2 keywords (e.g. Governance, Security, UX, Performance, Scalability). Update: {item['title']}. Return only keywords separated by commas."
+                tag_resp = self.client.models.generate_content(model='gemini-2.0-flash-exp', contents=tag_prompt)
+                item['tags'] = [t.strip() for t in tag_resp.text.split(',')]
+            except Exception:
+                item['tags'] = []
+
+            # Refine Summary
             if len(item.get('summary', '')) > 300:
                 try:
                     refine_prompt = f"Summarize this for a business audience in 2 sentences focus on impact: {item['summary']}"
