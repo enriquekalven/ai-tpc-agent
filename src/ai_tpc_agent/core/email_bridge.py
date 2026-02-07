@@ -63,26 +63,114 @@ class EmailBridge:
             if source not in grouped_knowledge:
                 grouped_knowledge[source] = []
             grouped_knowledge[source].append(item)
+
+        # Color Mapping System
+        color_map = {
+            'Gemini': '#4f46e5',   # Indigo
+            'Vertex': '#0ea5e9',   # Sky Blue
+            'Security': '#e11d48', # Rose/Red
+            'Agent': '#10b981',    # Emerald
+            'Infrastructure': '#64748b', # Slate
+            'Search': '#f59e0b'    # Amber
+        }
+
         sections = ''
         for source, items in grouped_knowledge.items():
-            sections += f'\n            <div style="margin-top: 40px; margin-bottom: 20px;">\n                <h2 style="color: #5f6368; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #e8eaed; padding-bottom: 8px;">\n                    📦 {source}\n                </h2>\n            </div>\n            '
+            # Determine section color
+            card_color = '#4285F4' # Default Google Blue
+            for key, val in color_map.items():
+                if key.lower() in source.lower():
+                    card_color = val
+                    break
+
+            sections += f'\n            <div style="margin-top: 40px; margin-bottom: 20px;">\n                <h2 style="color: {card_color}; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid {card_color}33; padding-bottom: 8px;">\n                    📦 {source}\n                </h2>\n            </div>\n            '
             for item in items:
-                bridge = item.get('bridge', 'New roadmap update detected. Review impacts on developer velocity.')
-                tags_html = ''.join([f'<span style="background-color: #f1f3f4; color: #5f6368; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; margin-right: 5px; border: 1px solid #dadce0;">{t}</span>' for t in item.get('tags', [])])
+                bridge = item.get('bridge', 'New roadmap update detected.')
+                # Tag color logic
+                tags_html = ''
+                item_tags = item.get('tags', [])
+                for t in item_tags:
+                    tag_bg = '#f1f3f4'
+                    tag_text = '#5f6368'
+                    if 'Security' in t: tag_bg, tag_text = '#fee2e2', '#b91c1c'
+                    elif 'Governance' in t: tag_bg, tag_text = '#e0e7ff', '#4338ca'
+                    elif 'Performance' in t: tag_bg, tag_text = '#ecfdf5', '#047857'
+                    
+                    tags_html += f'<span style="background-color: {tag_bg}; color: {tag_text}; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; margin-right: 5px; font-weight: 500;">{t}</span>'
+
+                # Premium Flashcard Layout (Interactive Expand)
                 sections += f'''
-                <div style="margin-bottom: 25px; padding: 20px; border-left: 6px solid #4285F4; background-color: #ffffff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top: 1px solid #f1f3f4; border-right: 1px solid #f1f3f4; border-bottom: 1px solid #f1f3f4;">
-                    <h3 style="margin-top: 0; color: #1a73e8; font-size: 1.15em;">{item['title']}</h3>
-                    <div style="margin-bottom: 15px;">{tags_html}</div>
-                    <div style="background-color: #e8f0fe; padding: 12px; border-radius: 4px; border: 1px solid #d2e3fc; margin-bottom: 15px;">
-                        <p style="margin: 0; font-weight: bold; color: #1967d2; font-size: 0.9em;">🚀 FIELD IMPACT:</p>
-                        <p style="margin: 5px 0 0 0; color: #202124;">{bridge}</p>
-                    </div>
-                    <div style="color: #3c4043; line-height: 1.6; font-size: 0.95em; white-space: pre-wrap; margin-bottom: 15px;">{item.get('summary', '')}</div>
-                    <div style="margin-top: 15px;">
-                        <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 8px 16px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.9em;">Open Documentation</a>
+                <div style="margin-bottom: 25px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); border: 1px solid #e5e7eb; overflow: hidden; transition: transform 0.2s;">
+                    <div style="border-top: 6px solid {card_color}; padding: 25px;">
+                        <h3 style="margin: 0 0 12px 0; color: #111827; font-size: 1.2em; font-weight: 600;">{item['title']}</h3>
+                        <div style="margin-bottom: 18px;">{tags_html}</div>
+                        
+                        <!-- Front of Card: Actionable Insight -->
+                        <div style="background-color: {card_color}08; padding: 15px; border-radius: 8px; border-left: 4px solid {card_color}; margin-bottom: 0;">
+                            <p style="margin: 0; font-weight: 700; color: {card_color}; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px;">🚀 FIELD IMPACT</p>
+                            <p style="margin: 8px 0 0 0; color: #374151; font-weight: 500; line-height: 1.5;">{bridge}</p>
+                        </div>
+
+                        <!-- Interactive Back of Card (Expandable Section) -->
+                        <details style="margin-top: 15px; cursor: pointer;">
+                            <summary style="font-size: 0.85em; font-weight: 600; color: {card_color}; outline: none; list-style: none;">
+                                <span style="display: inline-block; padding: 6px 12px; border: 1px solid {card_color}4d; border-radius: 6px; background-color: white;">
+                                    🔄 Flip for Technical Specs
+                                </span>
+                            </summary>
+                            <div style="margin-top: 15px; padding: 15px; background-color: #f9fafb; border-radius: 8px; border: 1px dashed #d1d5db; color: #4b5563; font-size: 0.9em; line-height: 1.6; white-space: pre-wrap;">
+                                {item.get('summary', 'Technical specifications for this update are being finalized.')}
+                            </div>
+                        </details>
+
+                        <div style="margin-top: 20px;">
+                            <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 10px 20px; background-color: {card_color}; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 0.9em; box-shadow: 0 2px 4px {card_color}33;">Open Full Documentation</a>
+                        </div>
                     </div>
                 </div>
                 '''
-        tldr_sec = f'\n        <div style="background-color: #fff7e6; border: 1px solid #ffe7ba; padding: 20px; border-radius: 8px; margin-bottom: 30px;">\n            <h2 style="margin-top: 0; color: #d46b08; font-size: 1.1em;">🎯 Executive TLDR</h2>\n            <p style="margin: 0; color: #595959; font-style: italic; line-height: 1.5;">{tldr}</p>\n        </div>\n        ' if tldr else ''
-        date_line = f"<p style='margin: 10px 0 0 0; font-size: 0.9em; opacity: 0.8;'>Pulse Period: {date_range}</p>" if date_range else ''
-        return f"""\n        <html>\n            <body style="font-family: 'Google Sans', Roboto, Arial, sans-serif; line-height: 1.6; color: #202124; background-color: #f8f9fa; padding: 20px;">\n                <div style="max-width: 800px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">\n                    <div style="background-color: #1a73e8; color: white; padding: 40px 30px; text-align: center;">\n                        <h1 style="margin: 0; font-size: 2em; letter-spacing: -0.5px;">🚀 AI TPC Field Pulse</h1>\n                        <p style="margin: 10px 0 0 0; font-size: 1.1em; font-weight: 300; opacity: 0.9;">Synthesized Intel for Google Cloud AI Teams</p>\n                        {date_line}\n                    </div>\n                    <div style="padding: 40px 30px;">\n                        {tldr_sec}\n                        <p style="color: #5f6368; margin-bottom: 30px;">Hello Team, here are the latest synthesized updates grouped by service stream:</p>\n                        {sections}\n                    </div>\n                    <div style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #dadce0;">\n                        <p style="margin: 0; font-size: 0.85em; color: #70757a;">\n                            Synthesized by <strong>AI TPC Agent</strong> using Gemini 2.0 Flash\n                        </p>\n                        <p style="margin: 10px 0 0 0; font-size: 0.8em; color: #9aa0a6;">\n                            This is an automated field enablement pulse.\n                        </p>\n                    </div>\n                </div>\n            </body>\n        </html>\n        """
+
+        tldr_sec = f'''
+        <div style="background-color: #fffbeb; border: 1px solid #fde68a; padding: 25px; border-radius: 12px; margin-bottom: 40px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+            <h2 style="margin: 0 0 12px 0; color: #92400e; font-size: 1.1em; display: flex; align-items: center;">
+                <span style="font-size: 1.4em; margin-right: 10px;">🎯</span> Executive Synthesis
+            </h2>
+            <p style="margin: 0; color: #451a03; font-weight: 400; line-height: 1.6; font-size: 1em;">{tldr}</p>
+        </div>
+        ''' if tldr else ''
+
+        date_line = f"<p style='margin: 12px 0 0 0; font-size: 0.95em; opacity: 0.85; font-weight: 300;'>Pulse Period: {date_range}</p>" if date_range else ''
+
+        return f"""
+        <html>
+            <head>
+                <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+                    body {{ font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }}
+                    summary::-webkit-details-marker {{ display: none; }}
+                </style>
+            </head>
+            <body style="font-family: 'Inter', sans-serif; line-height: 1.6; color: #111827; background-color: #f3f4f6; padding: 20px;">
+                <div style="max-width: 800px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);">
+                    <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 50px 40px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 2.2em; font-weight: 800; letter-spacing: -1px;">📡 AI TPC FIELD PULSE</h1>
+                        <p style="margin: 12px 0 0 0; font-size: 1.1em; font-weight: 400; opacity: 0.9;">Premium Intel for Google Cloud Architects</p>
+                        {date_line}
+                    </div>
+                    <div style="padding: 50px 40px;">
+                        {tldr_sec}
+                        <p style="color: #6b7280; margin-bottom: 35px; font-weight: 500;">Hello Team, the TPC Agent has synthesized the following high-impact shifts in the ecosystem:</p>
+                        {sections}
+                    </div>
+                    <div style="background-color: #f9fafb; padding: 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                        <p style="margin: 0; font-size: 0.9em; color: #4b5563;">
+                            Synthesized by <strong style="color: #1a73e8;">AI TPC Agent</strong> using Gemini 2.5 Flash
+                        </p>
+                        <p style="margin: 12px 0 0 0; font-size: 0.8em; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">
+                            Mission Critical • Confidential • Field Pulse
+                        </p>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
