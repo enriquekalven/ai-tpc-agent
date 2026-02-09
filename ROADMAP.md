@@ -16,10 +16,10 @@ This roadmap tracks the evolution of the AI TPC Agent from a "Pulse Dispatcher" 
 ### 🏗️ Phase 1: RAG & Persistence (Q1 2026)
 *Goal: Move from "What's new today" to "Ask me anything about AI Roadmaps."*
 
-- [ ] **Vector Database Integration**: Implement persistent storage (Vertex AI Search or ChromaDB) to store every historical pulse.
-- [ ] **Retrieval Augmented Generation (RAG)**: Enable users to query the agent about historical shifts (e.g., *"When did Claude 3.5 launch on Vertex?"*).
-- [ ] **Serving Layer**: Finalize `tpc-agent serve` command to expose a FastAPI endpoint compatible with **Agent Engine**.
-- [ ] **Gemini Enterprise Registration**: Register the agent as a tool in the corporate Gemini UI for always-on field access.
+- [x] **Vector Database Integration**: Implement persistent storage (Vertex AI RAG Engine) to store every historical pulse.
+- [x] **Retrieval Augmented Generation (RAG)**: Enable users to query the agent about historical shifts.
+- [x] **Serving Layer**: Finalized `tpc-agent serve` command exposing a FastAPI endpoint.
+- [ ] **Gemini Enterprise Registration**: Register the agent as a tool in the corporate Gemini UI.
 
 ### 📁 Phase 2: Internal Knowledge Ingestion (Q1-Q2 2026)
 *Goal: Ingest private Google data sources identified in the PRD.*

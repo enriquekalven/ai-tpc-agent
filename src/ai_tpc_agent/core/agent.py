@@ -15,6 +15,8 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 from .watcher import fetch_recent_updates
 from .pii_scrubber import scrub_pii
+from .vector_store import TPCVectorStore
+from .maturity import MaturityAuditor
 console = Console()
 WATCHLIST_PATH = os.path.join(os.path.dirname(__file__), 'watchlist.json')
 
@@ -75,6 +77,11 @@ class TPCTools:
         color = 'green' if severity == 'LOW' else 'yellow' if severity == 'MEDIUM' else 'red'
         console.print(Panel(message, title=f"FIELD ALERT: {severity}", border_style=color))
 
+    def audit_package_maturity(self, package_name: str, client=None) -> Dict[str, Any]:
+        """Performs a deep audit of a package's maturity and capabilities."""
+        auditor = MaturityAuditor(gemini_client=client)
+        return auditor.audit_pypi_package(package_name)
+
 def parse_date(date_str: str) -> datetime:
     """Very basic date parsing for Atom/RSS/ISO formats."""
     try:
@@ -93,9 +100,10 @@ class TPCAgent:
     Wrapper to maintain compatibility with existing CLI commands.
     """
 
-    def __init__(self, conversation_id: str='default-session'):
+    def __init__(self, conversation_id: str='default-session', project_id: str = "project-maui"):
         self.tools = TPCTools()
         self.api_key = os.environ.get('GOOGLE_API_KEY')
+        self.project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", project_id)
         self.conversation_id = conversation_id
         self.client = None
         self._summary_cache = {}
@@ -109,9 +117,48 @@ class TPCAgent:
         # FinOps/Reliability: Handle Context Caching
         if ContextCacheConfig:
             self.cache_config = ContextCacheConfig(ttl_seconds=3600)
+        
+        # RAG Support: Initialize Vector Store
+        self.vector_store = TPCVectorStore(project_id=self.project_id)
 
     def browse_knowledge(self) -> List[Dict[str, Any]]:
         return self.tools.browse_ai_knowledge()
+
+    def query_knowledge(self, query: str, n_results: int = 5) -> List[Dict[str, Any]]:
+        """
+        RAG query: Finds relevant historical pulses based on the user query.
+        """
+        console.print(f'[cyan]🔍 Querying knowledge base for: "{query}"...[/cyan]')
+        return self.vector_store.query(query, n_results=n_results)
+
+    def ingest_documents(self, uris: List[str]):
+        """
+        Ingests Google Workspace documents (Slides, Docs, Sheets) or GCS files.
+        """
+        return self.vector_store.ingest_uris(uris)
+
+    def audit_maturity(self, package_name: str):
+        """
+        Deep-audits a package and persists its maturity wisdom to the vector store.
+        """
+        wisdom = self.tools.audit_package_maturity(package_name, client=self.client)
+        if "error" in wisdom:
+            console.print(f"[red]Audit Failed: {wisdom['error']}[/red]")
+            return wisdom
+        
+        # Persist to RAG
+        pulse_format = {
+            "title": f"Maturity Audit: {package_name} v{wisdom.get('version')}",
+            "source": f"pypi:{package_name}",
+            "summary": wisdom.get("wisdom", wisdom.get("summary")),
+            "bridge": f"DEEP AUDIT: Full capability set for {package_name} has been ingested.",
+            "category": "maturity",
+            "source_url": f"https://pypi.org/project/{package_name}/",
+            "tags": ["Maturity", "SDK", "Capability Audit"]
+        }
+        self.vector_store.upsert_pulses([pulse_format])
+        console.print(f"[green]✅ Maturity Wisdom for {package_name} persisted to Cloud RAG.[/green]")
+        return wisdom
 
     def _validate_prompt(self, text: str) -> bool:
         """Basic pre-reasoning validator to prevent high-impact prompt injection."""
@@ -192,6 +239,14 @@ class TPCAgent:
                 tldr = resp.text.strip()
             except Exception:
                 pass
+        
+        # Persistence: Store all synthesized items in the vector database
+        try:
+            self.vector_store.upsert_pulses(knowledge)
+            console.print(f'[green]💾 Persisted {len(knowledge)} updates to the vector database.[/green]')
+        except Exception as e:
+            console.print(f'[yellow]Warning: Failed to persist updates to vector database: {e}[/yellow]')
+            
         return {'items': knowledge, 'tldr': tldr}
 
     def promote_learnings(self, synthesized_content: Dict[str, Any], days: int=1):
