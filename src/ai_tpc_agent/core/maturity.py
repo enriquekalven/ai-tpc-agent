@@ -1,3 +1,4 @@
+from typing import Literal
 import requests
 import json
 from typing import Dict, Any, List

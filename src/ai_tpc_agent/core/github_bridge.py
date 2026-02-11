@@ -1,3 +1,4 @@
+from typing import Literal
 from tenacity import retry, wait_exponential, stop_after_attempt
 import os
 import requests
