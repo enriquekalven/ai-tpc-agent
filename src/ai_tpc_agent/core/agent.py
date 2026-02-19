@@ -1,3 +1,4 @@
+import re
 from typing import Literal
 # AI TPC Agent - Version 0.1.0-Hardened
 from tenacity import retry, wait_exponential, stop_after_attempt
@@ -396,7 +397,7 @@ class TPCAgent:
         - 0-39: Patch notes, documentation typos, maintenance.
         
         Return ONLY a JSON list of objects with 'index' and 'score'.
-        Example: [{"index": 0, "score": 95}, {"index": 1, "score": 40}]
+        Example: [{{"index": 0, "score": 95}}, {{"index": 1, "score": 40}}]
         </task>
         <updates>
         {context}

@@ -37,3 +37,16 @@ def test_fetch_from_html(mock_urlopen):
     assert len(updates) >= 1
     assert 'New AI Agent' in updates[0]['title']
     assert '2026-02-06' in updates[0]['date']
+
+@patch('urllib.request.urlopen')
+def test_fetch_from_html_signal_detection(mock_urlopen):
+    # Test that 'Gemini 3.1' is caught by signal detection even if structure is messy
+    html_content = b'<html><body><div>Random text</div><h5>Introducing Gemini 3.1 Pro on Google Cloud</h5><p>More text</p></body></html>'
+    mock_response = MagicMock()
+    mock_response.read.return_value = html_content
+    mock_response.__enter__.return_value = mock_response
+    mock_urlopen.return_value = mock_response
+    
+    updates = fetch_recent_updates('https://cloud.google.com/blog/test', max_items=5)
+    assert any('Gemini 3.1' in u['title'] for u in updates)
+    assert any('signal detected' in u['summary'].lower() for u in updates)

@@ -98,7 +98,11 @@ def test_synthesize_reports_with_client(mock_scrub, mock_summarize, mock_vector_
     mock_resp_tldr = MagicMock()
     mock_resp_tldr.text = "Executive Summary with 📊"
     
+    mock_resp_ranking = MagicMock()
+    mock_resp_ranking.text = '[{"index": 0, "score": 90}]'
+    
     mock_client.models.generate_content.side_effect = [
+        mock_resp_ranking,
         mock_resp_tags,
         mock_resp_summary,
         mock_resp_tldr
@@ -128,3 +132,42 @@ def test_audit_maturity_logic(mock_vector_store_class):
     assert agent.vector_store.upsert_pulses.called
     args, _ = agent.vector_store.upsert_pulses.call_args
     assert "Maturity Audit: test-package" in args[0][0]["title"]
+
+@patch('ai_tpc_agent.core.agent.TPCVectorStore')
+def test_rank_by_impact(mock_vector_store_class):
+    agent = TPCAgent()
+    mock_client = MagicMock()
+    agent.client = mock_client
+    
+    # Mock Gemini response for ranking
+    mock_resp = MagicMock()
+    mock_resp.text = '[{"index": 0, "score": 40}, {"index": 1, "score": 95}]'
+    mock_client.models.generate_content.return_value = mock_resp
+    
+    items = [
+        {'title': 'Minor Patch'},
+        {'title': 'Gemini 3.1 Pro Major Launch!'}
+    ]
+    
+    ranked = agent._rank_by_impact(items)
+    
+    assert len(ranked) == 2
+    # Gemini 3.1 should be forced to top score via our priority boost
+    assert ranked[0]['impact_score'] >= 95
+    assert 'Gemini 3.1' in ranked[0]['title']
+
+@patch('ai_tpc_agent.core.agent.TPCVectorStore')
+def test_generate_infographic(mock_vector_store_class):
+    agent = TPCAgent()
+    mock_client = MagicMock()
+    agent.client = mock_client
+    
+    synthesized = {
+        'items': [{'title': 'Gemini 3.1'}, {'title': 'Claude 3.5'}],
+        'tldr': 'Market synthesis info'
+    }
+    
+    path = agent.generate_infographic(synthesized)
+    
+    assert path == "daily_pulse_infographic.png"
+    assert mock_client.models.generate_image.called
