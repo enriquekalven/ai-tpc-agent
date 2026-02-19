@@ -16,14 +16,22 @@ def test_parse_date():
 
 def test_bridge_roadmap_to_field():
     tools = TPCTools()
+    # Test title-based matching
     bridge = tools.bridge_roadmap_to_field({'title': 'Agent Builder New Features'})
     assert 'Agent Builder' in bridge
     bridge = tools.bridge_roadmap_to_field({'title': 'Gemini 1.5 Pro update'})
     assert 'GE UPDATE' in bridge
     bridge = tools.bridge_roadmap_to_field({'title': 'Anthropic Claude 3.5'})
     assert 'PARTNER DEPTH' in bridge
+    bridge = tools.bridge_roadmap_to_field({'title': 'Claude 3.7 Sonnet Release'})
+    assert 'PARTNER DEPTH' in bridge
     bridge = tools.bridge_roadmap_to_field({'title': 'Enterprise Security Compliance'})
     assert 'GOVERNANCE' in bridge
+    
+    # Test source-based matching (e.g. version-only title but source has keywords)
+    bridge = tools.bridge_roadmap_to_field({'title': 'v0.1.38', 'source': 'claude-agent-sdk-py'})
+    assert 'PARTNER DEPTH' in bridge
+    
     bridge = tools.bridge_roadmap_to_field({'title': 'Random Product Update'})
     assert 'velocity' in bridge
 
