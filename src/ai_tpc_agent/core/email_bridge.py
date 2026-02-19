@@ -130,21 +130,29 @@ class EmailBridge:
                 
                 # Priority Logic
                 p_bg, p_fg, p_label = '#f1f5f9', '#64748b', 'Standard'
-                if any(x in str(item_tags) for x in ['Security', 'Governance']):
+                impact_score = item.get('impact_score', 0)
+                
+                if impact_score >= 90:
                     p_bg, p_fg, p_label = '#fff1f2', '#e11d48', 'Mission Critical'
-                elif 'Performance' in str(item_tags):
+                elif impact_score >= 70:
                     p_bg, p_fg, p_label = '#fffbeb', '#d97706', 'High Impact'
+                elif any(x in str(item_tags) for x in ['Security', 'Governance']):
+                    p_bg, p_fg, p_label = '#fff1f2', '#e11d48', 'Security Critical'
 
                 for t in item_tags:
                     tags_html += f'<span style="background-color: #f8fafc; color: #475569; padding: 2px 8px; border-radius: 9999px; font-size: 10px; margin-right: 4px; font-weight: 600; text-transform: uppercase; border: 1px solid #e2e8f0;">{t}</span>'
 
                 summary_html = self._md_to_html(item.get('summary', 'Technical analysis in progress.'))
+                score_badge = f'<span style="margin-left: 8px; background-color: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-family: monospace; font-weight: 700; border: 1px solid #e2e8f0;">INTEL SCORE: {impact_score}</span>'
 
                 sections += f'''
                 <div style="margin-bottom: 24px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);">
                     <div style="padding: 24px;">
                         <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-                             <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: {p_fg}; background-color: {p_bg}; padding: 2px 8px; border-radius: 4px;">{p_label}</span>
+                             <div style="display: flex; align-items: center;">
+                                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: {p_fg}; background-color: {p_bg}; padding: 2px 8px; border-radius: 4px;">{p_label}</span>
+                                {score_badge}
+                             </div>
                              <div style="display: flex;">{tags_html}</div>
                         </div>
                         <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 1.1rem; font-weight: 700; line-height: 1.3;">{item['title']}</h3>

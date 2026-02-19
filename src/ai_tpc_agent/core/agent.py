@@ -235,31 +235,19 @@ class TPCAgent:
         if not knowledge:
             return {'items': [], 'tldr': 'No new updates found for this period.', 'gaps': ''}
         
-        # Priority Logic: Ensure Mission-Critical updates aren't buried
-        priority_keywords = ['gemini 3', 'gemini 2.5', 'sovereign', 'generally available', ' ga ', 'launching', 'preview']
+        # Strategic Impact Ranking Pass
+        if self.client and knowledge:
+            try:
+                knowledge = self._rank_by_impact(knowledge)
+            except Exception as e:
+                console.print(f'[yellow]Warning: Impact ranking failed, falling back to date sort: {e}[/yellow]')
+                knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+                knowledge = knowledge[:20]
+        else:
+            knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+            knowledge = knowledge[:20]
         
-        priority_items = []
-        standard_items = []
-        
-        for item in knowledge:
-            title_lower = item.get('title', '').lower()
-            if any(kw in title_lower for kw in priority_keywords):
-                priority_items.append(item)
-            else:
-                standard_items.append(item)
-        
-        # Performance: Limit total items synthesized to prevent long-running pulses
-        # Always include ALL priority items, then fill up to 20 with newest standard items
-        priority_items.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
-        standard_items.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
-        
-        # Take all priority items (capped at 10 to be safe) + standard items to a total of 25
-        knowledge = (priority_items[:10] + standard_items)[:25]
-        
-        # Re-sort final list by date
-        knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
-        
-        console.print(f'[cyan]✨ Synthesizing {len(knowledge)} reports (Priority-Aware Hybrid Engine)...[/cyan]')
+        console.print(f'[cyan]✨ Synthesizing {len(knowledge)} High-Impact reports...[/cyan]')
         for item in knowledge:
             if not self.client:
                 item['bridge'] = self.tools.bridge_roadmap_to_field(item)
@@ -383,6 +371,54 @@ class TPCAgent:
         
         resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
         return resp.text.strip()
+
+    def _rank_by_impact(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Uses Gemini to score and rank updates based on 'Field Impact'.
+        """
+        if not items: return []
+        
+        # Prepare context for the ranker
+        context = "\n".join([f"[{i}] {item.get('title')} (Source: {item.get('source')})" for i, item in enumerate(items)])
+        
+        prompt = f"""
+        <system>You are a Senior AI Field Architect at Google Cloud.</system>
+        <task>
+        Score the following technical updates from 1 to 100 based on 'Field Value'.
+        Criteria:
+        - 90-100: Major Model Launches (Gemini 3.1), GA announcements, Sovereign AI, Game-changing SDK features.
+        - 70-89: New preview features, significant performance boosts, important deprecations.
+        - 40-69: Standard minor features, CLI/SDK version bumps with bugfixes.
+        - 0-39: Patch notes, documentation typos, maintenance.
+        
+        Return ONLY a JSON list of objects with 'index' and 'score'.
+        Example: [{"index": 0, "score": 95}, {"index": 1, "score": 40}]
+        </task>
+        <updates>
+        {context}
+        </updates>
+        """
+        
+        try:
+            # Clean up potential markdown formatting if Gemini returns it
+            resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            clean_json = resp.text.strip().replace('```json', '').replace('```', '')
+            scores = json.loads(clean_json)
+            
+            # Map scores back to items
+            for s in scores:
+                idx = s.get('index')
+                if idx < len(items):
+                    items[idx]['impact_score'] = s.get('score', 0)
+            
+            # Sort by score descending
+            ranked = sorted([i for i in items if 'impact_score' in i], key=lambda x: x['impact_score'], reverse=True)
+            
+            # Ensure newest high-score items are prioritize, take top 20
+            return ranked[:20]
+        except Exception as e:
+            console.print(f"[yellow]Ranking parse failed: {e}. Falling back to default order.[/yellow]")
+            return items[:20]
 
     def promote_learnings(self, synthesized_content: Dict[str, Any], days: int=1):
         items = synthesized_content.get('items', [])
