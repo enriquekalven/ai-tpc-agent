@@ -38,8 +38,9 @@ class TPCTools:
         sources = hub.copy()
         sources.update(roads)
         for name, info in sources.items():
+            console.print(f'[dim]📡 Scanning {name}...[/dim]')
             try:
-                recent_items = fetch_recent_updates(info['feed'], max_items=10)
+                recent_items = fetch_recent_updates(info['feed'], max_items=5)
             except Exception as e:
                 console.print(f'[yellow]Warning: Failed to fetch updates for {name}: {e}[/yellow]')
                 recent_items = []
@@ -230,13 +231,16 @@ class TPCAgent:
     def synthesize_reports(self, knowledge: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Enriches the knowledge list with Gemini-powered summaries, bridges, and tags.
-        Returns a dictionary containing:
-        - 'items': The enriched list of items
-        - 'tldr': A high-level executive summary of all updates
         """
         if not knowledge:
             return {'items': [], 'tldr': 'No new updates found for this period.'}
-        console.print('[cyan]✨ Synthesizing reports with Gemini...[/cyan]')
+        
+        # Performance: Limit total items synthesized to prevent long-running pulses
+        # Sort by date (desc) and take top 20
+        knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+        knowledge = knowledge[:20]
+        
+        console.print(f'[cyan]✨ Synthesizing Top {len(knowledge)} reports with Gemini Hybrid Engine...[/cyan]')
         for item in knowledge:
             if not self.client:
                 item['bridge'] = self.tools.bridge_roadmap_to_field(item)
@@ -251,7 +255,7 @@ class TPCAgent:
             if len(item.get('summary', '')) < 50:
                 try:
                     gen_prompt = f"Based on the title '{item['title']}' from source '{item['source']}', provide a 2-sentence technical summary of what this update likely entails for an AI Engineer. Return ONLY the summary."
-                    gen_resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=gen_prompt)
+                    gen_resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=gen_prompt)
                     item['summary'] = gen_resp.text.strip()
                 except Exception:
                     pass
@@ -260,14 +264,14 @@ class TPCAgent:
             item['bridge'] = self._scrub_pii(item['bridge'])
             try:
                 tag_prompt = f"Categorize this technical update with 1-2 keywords (e.g. Governance, Security, UX, Performance, Scalability). Update: {item['title']}. Return only keywords separated by commas."
-                tag_resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=tag_prompt)
+                tag_resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=tag_prompt)
                 item['tags'] = [t.strip() for t in tag_resp.text.split(',')]
             except Exception:
                 item['tags'] = []
             if len(item.get('summary', '')) > 200:
                 try:
                     refine_prompt = f"Summarize this for a technical business audience in 3 bullet points focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use emojis for each point. Content: {item['summary']}"
-                    resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=refine_prompt)
+                    resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=refine_prompt)
                     item['summary'] = resp.text.strip()
                 except Exception:
                     pass
@@ -378,7 +382,7 @@ class TPCAgent:
             Include 1-2 relevant emojis to make it stand out in field reports.
             </format>
             """
-            response = self.client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
+            response = self.client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
             summary = response.text.strip()
             self._summary_cache[cache_key] = summary
             return summary
