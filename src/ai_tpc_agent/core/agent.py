@@ -233,14 +233,21 @@ class TPCAgent:
         Enriches the knowledge list with Gemini-powered summaries, bridges, and tags.
         """
         if not knowledge:
-            return {'items': [], 'tldr': 'No new updates found for this period.'}
+            return {'items': [], 'tldr': 'No new updates found for this period.', 'gaps': ''}
         
-        # Performance: Limit total items synthesized to prevent long-running pulses
-        # Sort by date (desc) and take top 20
-        knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
-        knowledge = knowledge[:20]
+        # Strategic Impact Ranking Pass
+        if self.client and knowledge:
+            try:
+                knowledge = self._rank_by_impact(knowledge)
+            except Exception as e:
+                console.print(f'[yellow]Warning: Impact ranking failed, falling back to date sort: {e}[/yellow]')
+                knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+                knowledge = knowledge[:20]
+        else:
+            knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+            knowledge = knowledge[:20]
         
-        console.print(f'[cyan]✨ Synthesizing Top {len(knowledge)} reports with Gemini Hybrid Engine...[/cyan]')
+        console.print(f'[cyan]✨ Synthesizing {len(knowledge)} High-Impact reports...[/cyan]')
         for item in knowledge:
             if not self.client:
                 item['bridge'] = self.tools.bridge_roadmap_to_field(item)
@@ -270,7 +277,7 @@ class TPCAgent:
                 item['tags'] = []
             if len(item.get('summary', '')) > 200:
                 try:
-                    refine_prompt = f"Summarize this for a technical business audience in 3 bullet points focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use emojis for each point. Content: {item['summary']}"
+                    refine_prompt = f"Summarize this for a technical business audience into 3 distinct markdown bullet points. Focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use bold labels for each. Content: {item['summary']}"
                     resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=refine_prompt)
                     item['summary'] = resp.text.strip()
                 except Exception:
@@ -348,16 +355,11 @@ class TPCAgent:
         </context>
 
         <task>
-        Perform a 'Strategic Gap Analysis' for the field team.
-        1. Identify if a competitor (Anthropic/OpenAI) has released a feature that Google (Vertex AI/ADK) is currently lacking (e.g., 'Agent Skills', 'A2UI Standard', 'Trace Persistence').
-        2. Identify where Google has a 'First-Mover' advantage.
-        3. Highlight the #1 'Technical Debt' or 'Feature Gap' the field team should be aware of when talking to customers.
+        {task}
         </task>
 
         <format>
-        Return 2-3 concise, high-impact bullet points. 
-        Focus on 'Feature Parity' and 'Competitive Gaps'.
-        Keep it professional and technical.
+        {format_instr}
         </format>
 
         <constraints>
@@ -369,6 +371,54 @@ class TPCAgent:
         
         resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
         return resp.text.strip()
+
+    def _rank_by_impact(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Uses Gemini to score and rank updates based on 'Field Impact'.
+        """
+        if not items: return []
+        
+        # Prepare context for the ranker
+        context = "\n".join([f"[{i}] {item.get('title')} (Source: {item.get('source')})" for i, item in enumerate(items)])
+        
+        prompt = f"""
+        <system>You are a Senior AI Field Architect at Google Cloud.</system>
+        <task>
+        Score the following technical updates from 1 to 100 based on 'Field Value'.
+        Criteria:
+        - 90-100: Major Model Launches (Gemini 3.1), GA announcements, Sovereign AI, Game-changing SDK features.
+        - 70-89: New preview features, significant performance boosts, important deprecations.
+        - 40-69: Standard minor features, CLI/SDK version bumps with bugfixes.
+        - 0-39: Patch notes, documentation typos, maintenance.
+        
+        Return ONLY a JSON list of objects with 'index' and 'score'.
+        Example: [{"index": 0, "score": 95}, {"index": 1, "score": 40}]
+        </task>
+        <updates>
+        {context}
+        </updates>
+        """
+        
+        try:
+            # Clean up potential markdown formatting if Gemini returns it
+            resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            clean_json = resp.text.strip().replace('```json', '').replace('```', '')
+            scores = json.loads(clean_json)
+            
+            # Map scores back to items
+            for s in scores:
+                idx = s.get('index')
+                if idx < len(items):
+                    items[idx]['impact_score'] = s.get('score', 0)
+            
+            # Sort by score descending
+            ranked = sorted([i for i in items if 'impact_score' in i], key=lambda x: x['impact_score'], reverse=True)
+            
+            # Ensure newest high-score items are prioritize, take top 20
+            return ranked[:20]
+        except Exception as e:
+            console.print(f"[yellow]Ranking parse failed: {e}. Falling back to default order.[/yellow]")
+            return items[:20]
 
     def promote_learnings(self, synthesized_content: Dict[str, Any], days: int=1):
         items = synthesized_content.get('items', [])
