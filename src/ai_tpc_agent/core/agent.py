@@ -57,14 +57,15 @@ class TPCTools:
         """
         title = knowledge_item.get('title', '').lower()
         bridge_context = 'This update improves developer velocity and aligns with the 2026 Sovereign AI themes.'
-        if any((term in title for term in ['agent', 'builder'])):
+        title_and_source = (title + ' ' + knowledge_item.get('source', '').lower())
+        if any((term in title_and_source for term in ['claude', 'anthropic', 'opus', 'sonnet', 'haiku'])):
+            bridge_context = 'PARTNER DEPTH: New Claude/Anthropic updates. Essential for multi-model strategy and agentic tool diversity.'
+        elif any((term in title_and_source for term in ['agent', 'builder'])):
             bridge_context = "CRITICAL: Enhances Agent Builder. Field should focus on 'Low-Code to Pro-Code' transition stories."
-        elif any((term in title for term in ['gemini', 'ge', 'generative engine'])):
+        elif any((term in title_and_source for term in ['gemini', 'ge', 'generative engine'])):
             bridge_context = "GE UPDATE: New Gemini models/features. Highlight 'Context Window' and 'Reasoning Engine' improvements."
-        elif any((term in title for term in ['security', 'compliance', 'governance'])):
+        elif any((term in title_and_source for term in ['security', 'compliance', 'governance'])):
             bridge_context = 'GOVERNANCE: Directly addresses Enterprise Security concerns. Use to unblock FinServ/Healthcare deals.'
-        elif any((term in title for term in ['claude', 'anthropic', 'opus'])):
-            bridge_context = 'PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity.'
         elif 'adk' in title or 'agent development kit' in title:
             bridge_context = "DEV EXPERIENCE: ADK Update. Promotes standardized agent building. Essential for 'Agent-First' architecture talks."
         elif 'a2ui' in title:
