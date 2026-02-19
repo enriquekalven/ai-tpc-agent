@@ -62,6 +62,12 @@ class TPCTools:
             bridge_context = 'PARTNER DEPTH: New Claude/Anthropic updates. Essential for multi-model strategy and agentic tool diversity.'
         elif any((term in title_and_source for term in ['openai', 'multi-agent', 'swarm'])):
             bridge_context = 'PARTNER CONTEXT: OpenAI Agent SDK update. Critical for cross-ecosystem multi-agent orchestration and comparison.'
+        elif any((term in title_and_source for term in ['mcp', 'model context protocol'])):
+            bridge_context = 'INDUSTRY STANDARD: Model Context Protocol (MCP) update. Essential for standardizing how agents connect to data and tools.'
+        elif any((term in title_and_source for term in ['genkit', 'firebase'])):
+            bridge_context = "GOOGLE ECOSYSTEM: Firebase Genkit update. Key for developers building AI-orchestrated apps in the Google/Firebase stack."
+        elif any((term in title_and_source for term in ['autogen', 'crewai', 'langgraph'])):
+            bridge_context = "COMPETITIVE PULSE: Major update in rival agent frameworks (AutoGen/CrewAI/LangGraph). Monitor for feature parity and market shift."
         elif any((term in title_and_source for term in ['agent', 'builder'])):
             bridge_context = "CRITICAL: Enhances Agent Builder. Field should focus on 'Low-Code to Pro-Code' transition stories."
         elif any((term in title_and_source for term in ['gemini', 'ge', 'generative engine'])):
