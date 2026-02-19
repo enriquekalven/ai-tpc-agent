@@ -78,127 +78,123 @@ class EmailBridge:
                 grouped_knowledge[source] = []
             grouped_knowledge[source].append(item)
 
-        # Enhanced Color Mapping
+        # Designer Color Palette
         color_map = {
-            'Gemini': '#4f46e5',   # Indigo
-            'Vertex': '#0ea5e9',   # Sky Blue
-            'Security': '#e11d48', # Rose/Red
-            'Agent': '#10b981',    # Emerald
-            'Infrastructure': '#64748b', # Slate
-            'Search': '#f59e0b'    # Amber
+            'Gemini': '#6366f1',   # Indigo 500
+            'Vertex': '#0ea5e9',   # Sky 500
+            'Security': '#f43f5e', # Rose 500
+            'Agent': '#10b981',    # Emerald 500
+            'Infrastructure': '#64748b', # Slate 500
+            'Search': '#f59e0b',   # Amber 500
+            'Openai': '#10a37f',   # OpenAI Green
+            'Anthropic': '#cc785c' # Anthropic Tan/Orange
         }
 
         sections = ''
         for source, items in grouped_knowledge.items():
-            card_color = '#4285F4' # Default Google Blue
+            card_color = '#3b82f6' # Blue 500
             for key, val in color_map.items():
                 if key.lower() in source.lower():
                     card_color = val
                     break
 
-            sections += f'\n            <div style="margin-top: 50px; margin-bottom: 25px;">\n                <h2 style="color: {card_color}; font-size: 1.1em; text-transform: uppercase; font-weight: 800; letter-spacing: 2px; border-left: 5px solid {card_color}; padding-left: 15px;">\n                    {source}\n                </h2>\n            </div>\n            '
+            sections += f'''
+            <div style="margin-top: 40px; margin-bottom: 20px;">
+                <h2 style="color: {card_color}; font-size: 0.85rem; text-transform: uppercase; font-weight: 800; letter-spacing: 0.1em; margin: 0; display: inline-block; padding-bottom: 4px; border-bottom: 2px solid {card_color};">
+                    {source}
+                </h2>
+            </div>
+            '''
             for item in items:
-                bridge = item.get('bridge', 'New roadmap update detected.')
+                bridge = item.get('bridge', 'Strategizing field alignment...')
                 tags_html = ''
                 item_tags = item.get('tags', [])
                 
-                # Priority Detection
-                priority_color = '#64748b' # Default Slate
-                priority_label = 'STANDARD'
+                # Priority Logic
+                p_bg, p_fg, p_label = '#f1f5f9', '#64748b', 'Standard'
                 if any(x in str(item_tags) for x in ['Security', 'Governance']):
-                    priority_color = '#e11d48'
-                    priority_label = 'MISSION CRITICAL'
+                    p_bg, p_fg, p_label = '#fff1f2', '#e11d48', 'Mission Critical'
                 elif 'Performance' in str(item_tags):
-                    priority_color = '#f59e0b'
-                    priority_label = 'HIGH IMPACT'
+                    p_bg, p_fg, p_label = '#fffbeb', '#d97706', 'High Impact'
 
                 for t in item_tags:
-                    tags_html += f'<span style="background-color: #f1f3f4; color: #5f6368; padding: 4px 10px; border-radius: 4px; font-size: 0.7em; margin-right: 6px; font-weight: 700; text-transform: uppercase;">{t}</span>'
+                    tags_html += f'<span style="background-color: #f8fafc; color: #475569; padding: 2px 8px; border-radius: 9999px; font-size: 10px; margin-right: 4px; font-weight: 600; text-transform: uppercase; border: 1px solid #e2e8f0;">{t}</span>'
 
-                # Premium Dual-Face Flashcard (Folded Design for maximum compatibility)
                 sections += f'''
-                <div style="margin-bottom: 40px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb; background-color: #ffffff;">
-                    
-                    <!-- TOP SECTION: THE FRONT (Sales/Field) -->
-                    <div style="padding: 30px; border-top: 8px solid {card_color};">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-                            <h3 style="margin: 0; color: #111827; font-size: 1.3em; font-weight: 800; flex: 1; line-height: 1.2;">{item['title']}</h3>
-                            <span style="background-color: {priority_color}15; color: {priority_color}; padding: 4px 8px; border-radius: 4px; font-size: 0.65em; font-weight: 900; letter-spacing: 0.05em; margin-left: 15px; border: 1px solid {priority_color}33;">{priority_label}</span>
+                <div style="margin-bottom: 24px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);">
+                    <div style="padding: 24px;">
+                        <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                             <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: {p_fg}; background-color: {p_bg}; padding: 2px 8px; border-radius: 4px;">{p_label}</span>
+                             <div style="display: flex;">{tags_html}</div>
                         </div>
-                        <div style="margin-bottom: 20px;">{tags_html}</div>
+                        <h3 style="margin: 0 0 16px 0; color: #0f172a; font-size: 1.1rem; font-weight: 700; line-height: 1.3;">{item['title']}</h3>
                         
-                        <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; border-left: 4px solid {card_color};">
-                            <p style="margin: 0; font-weight: 800; color: {card_color}; font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">🚀 FIELD FRONT: IMPACT & ACTION</p>
-                            <p style="margin: 0; color: #1e293b; font-weight: 500; font-size: 1.1em; line-height: 1.5;">{bridge}</p>
+                        <div style="background-color: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid {card_color};">
+                             <p style="margin: 0; color: #334155; font-size: 0.95rem; font-weight: 500; line-height: 1.6;">{bridge}</p>
                         </div>
-                    </div>
 
-                    <!-- REVERSE SECTION: THE BACK (Technical Deep Dive) -->
-                    <div style="background-color: #1e293b; color: #e2e8f0; padding: 25px 30px;">
-                        <div style="display: flex; align-items: center; margin-bottom: 15px; opacity: 0.9;">
-                            <span style="font-size: 1.2em; margin-right: 10px;">⚙️</span>
-                            <span style="font-size: 0.75em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">TECHNICAL SPECIFICATIONS</span>
+                        <div style="color: #64748b; font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px;">
+                            {item.get('summary', 'Technical analysis in progress.')}
                         </div>
-                        <div style="color: #94a3b8; font-size: 0.9em; line-height: 1.7; font-family: 'Roboto Mono', monospace;">
-                            {item.get('summary', 'Detailed technical alignment for this release is currently being processed by the TPC Agent.')}
-                        </div>
-                        <div style="margin-top: 25px; border-top: 1px solid #334155; padding-top: 20px;">
-                            <a href="{item.get('source_url', '#')}" style="display: inline-block; padding: 12px 24px; background-color: #384455; color: white; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 0.85em; border: 1px solid #475569; transition: background 0.2s;">Open Engineering Docs</a>
+
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <a href="{item.get('source_url', '#')}" style="font-size: 0.8rem; font-weight: 700; color: {card_color}; text-decoration: none; text-transform: uppercase; letter-spacing: 0.05em;">Engineering Docs &rarr;</a>
+                            <span style="font-size: 10px; color: #94a3b8; font-weight: 500;">{item.get('date', '')[:10]}</span>
                         </div>
                     </div>
                 </div>
                 '''
 
         infographic_sec = f'''
-        <div style="margin-bottom: 45px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 2px solid #e2e8f0;">
-            <div style="background-color: #f8fafc; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;">
-                <span style="font-size: 1.2em; margin-right: 10px;">📊</span>
-                <span style="font-size: 0.75em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #64748b;">Visual Strategy Synthesis</span>
+        <div style="margin-bottom: 32px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; background-color: #f8fafc;">
+            <div style="padding: 12px 20px; border-bottom: 1px solid #e2e8f0; background-color: #ffffff; display: flex; align-items: center;">
+                <span style="font-size: 14px; margin-right: 8px;">📊</span>
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b;">Perspective: Strategic Infographic</span>
             </div>
-            <img src="cid:{infographic_cid}" alt="Strategic Infographic" style="width: 100%; display: block; background-color: #f1f5f9;">
+            <img src="cid:{infographic_cid}" alt="Strategic Synthesis" style="width: 100%; display: block; max-height: 500px; object-fit: contain;">
         </div>
         ''' if infographic_cid else ''
 
         tldr_sec = f'''
-        <div style="background: linear-gradient(to right, #fffbeb, #fef3c7); border: 2px solid #fde68a; padding: 30px; border-radius: 16px; margin-bottom: 45px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                <div style="background-color: #fbbf24; color: #92400e; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4em; margin-right: 15px;">🎯</div>
-                <h2 style="margin: 0; color: #92400e; font-size: 1.25em; font-weight: 800; letter-spacing: -0.5px;">Executive Synthesis</h2>
+        <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); border: 1px solid #fde68a; padding: 24px; border-radius: 12px; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 18px; margin-right: 12px;">🎯</span>
+                <h2 style="margin: 0; color: #92400e; font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Executive Synthesis</h2>
             </div>
-            <p style="margin: 0; color: #451a03; font-weight: 500; line-height: 1.7; font-size: 1.1em; font-style: italic;">"{tldr}"</p>
+            <p style="margin: 0; color: #78350f; font-weight: 500; line-height: 1.6; font-size: 1rem; font-style: italic;">{tldr}</p>
         </div>
         ''' if tldr else ''
 
-        date_line = f"<div style='margin-top: 15px; display: inline-block; background-color: rgba(255,255,255,0.15); padding: 5px 15px; border-radius: 20px; font-size: 0.85em; font-weight: 500;'>ACTIVE PULSE: {date_range}</div>" if date_range else ''
+        date_line = f"<div style='margin-top: 12px; opacity: 0.7; font-size: 0.8rem; font-weight: 500;'>{date_range}</div>" if date_range else ''
 
         return f"""
         <html>
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com">
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Roboto+Mono&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
             </head>
-            <body style="font-family: 'Inter', -apple-system, sans-serif; line-height: 1.6; color: #111827; background-color: #f1f5f9; padding: 20px; margin: 0;">
-                <div style="max-width: 800px; margin: 40px auto; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);">
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%); color: white; padding: 60px 50px; text-align: left;">
-                        <h1 style="margin: 0; font-size: 2.6em; font-weight: 800; letter-spacing: -1.5px; text-transform: uppercase;">📡 AI TPC FIELD PULSE</h1>
-                        <p style="margin: 10px 0 0 0; font-size: 1.2em; font-weight: 300; opacity: 0.8; letter-spacing: 0.5px;">Synthesized Intel for High-Velocity Teams</p>
+            <body style="font-family: 'Outfit', sans-serif; line-height: 1.6; color: #1e293b; background-color: #f1f5f9; padding: 20px; margin: 0;">
+                <div style="max-width: 640px; margin: 0 auto;">
+                    <header style="background-color: #0f172a; border-radius: 16px 16px 0 0; padding: 48px 32px; color: #ffffff; text-align: left;">
+                        <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.2em; color: #38bdf8; margin-bottom: 12px;">Field Intelligence Report</div>
+                        <h1 style="margin: 0; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1;">AI TPC PULSE</h1>
                         {date_line}
-                    </div>
-                    <div style="padding: 60px 50px;">
+                    </header>
+                    <main style="background-color: #ffffff; padding: 32px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                         {infographic_sec}
                         {tldr_sec}
-                        <p style="color: #64748b; margin-bottom: 40px; font-weight: 600; font-size: 1em; text-transform: uppercase; letter-spacing: 1.5px;">Latest Roadmap Transitions</p>
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">Technical Roadmap Transitions</div>
                         {sections}
-                    </div>
-                    <div style="background-color: #0f172a; padding: 50px; text-align: center; color: white;">
-                        <p style="margin: 0; font-size: 0.9em; color: #94a3b8; font-weight: 500;">
-                            Generated by <strong style="color: #3b82f6;">AI TPC Agent</strong> • Gemini 2.5 Flash Engine
+                    </main>
+                    <footer style="padding: 40px 32px; text-align: center;">
+                        <p style="margin: 0; font-size: 12px; color: #64748b; font-weight: 500;">
+                            Synthesized by <strong>AI TPC Agent</strong> v0.1.2 • Powered by <strong>Gemini 2.5 Pro</strong>
                         </p>
-                        <p style="margin: 15px 0 0 0; font-size: 0.75em; color: #475569; text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700;">
-                            MISSION CRITICAL • GOOGLE CLOUD CONFIDENTIAL
-                        </p>
-                    </div>
+                        <div style="margin-top: 16px; font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700;">
+                            Google Cloud Confidential • Internal Use Only
+                        </div>
+                    </footer>
                 </div>
             </body>
         </html>

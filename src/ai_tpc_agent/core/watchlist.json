@@ -47,6 +47,16 @@
       "description": "Claude Agent SDK (TypeScript) - Official Releases",
       "category": "roadmap"
     },
+    "mcp-specification": {
+      "feed": "https://github.com/modelcontextprotocol/specification/releases.atom",
+      "description": "Model Context Protocol (MCP) - Core Standard & Specification",
+      "category": "roadmap"
+    },
+    "mcp-python-sdk": {
+      "feed": "https://github.com/modelcontextprotocol/python-sdk/releases.atom",
+      "description": "MCP Python SDK - Multi-Agent Tool Integration Standard",
+      "category": "roadmap"
+    },
     "agent-starter-pack": {
       "feed": "https://github.com/GoogleCloudPlatform/agent-starter-pack/releases.atom",
       "description": "Agent Starter Pack - Reference Architecture Roadmap",
@@ -60,6 +70,11 @@
     "google-adk-pypi": {
       "feed": "https://pypi.org/rss/project/google-adk/releases.xml",
       "description": "Google ADK - PyPI Release Stream",
+      "category": "roadmap"
+    },
+    "firebase-genkit": {
+      "feed": "https://github.com/firebase/genkit/releases.atom",
+      "description": "Firebase Genkit - Google's AI App Framework for Devs",
       "category": "roadmap"
     },
     "a2ui": {
@@ -85,6 +100,21 @@
     "openai-agent-sdk-js": {
       "feed": "https://github.com/openai/openai-agents-js/releases.atom",
       "description": "OpenAI Agent SDK (JS/TS) - Official Multi-Agent Framework",
+      "category": "roadmap"
+    },
+    "microsoft-autogen": {
+      "feed": "https://github.com/microsoft/autogen/releases.atom",
+      "description": "Microsoft AutoGen - Programming Multi-Agent Systems",
+      "category": "roadmap"
+    },
+    "crew-ai": {
+      "feed": "https://github.com/crewAIInc/crewAI/releases.atom",
+      "description": "CrewAI - Orchestrating Role-Playing Autonomous AI Agents",
+      "category": "roadmap"
+    },
+    "langgraph": {
+      "feed": "https://github.com/langchain-ai/langgraph/releases.atom",
+      "description": "LangGraph - Custom Multi-Agent Control Flows",
       "category": "roadmap"
     }
   }

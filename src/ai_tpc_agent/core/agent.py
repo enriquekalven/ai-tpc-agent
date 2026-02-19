@@ -62,6 +62,12 @@ class TPCTools:
             bridge_context = 'PARTNER DEPTH: New Claude/Anthropic updates. Essential for multi-model strategy and agentic tool diversity.'
         elif any((term in title_and_source for term in ['openai', 'multi-agent', 'swarm'])):
             bridge_context = 'PARTNER CONTEXT: OpenAI Agent SDK update. Critical for cross-ecosystem multi-agent orchestration and comparison.'
+        elif any((term in title_and_source for term in ['mcp', 'model context protocol'])):
+            bridge_context = 'INDUSTRY STANDARD: Model Context Protocol (MCP) update. Essential for standardizing how agents connect to data and tools.'
+        elif any((term in title_and_source for term in ['genkit', 'firebase'])):
+            bridge_context = "GOOGLE ECOSYSTEM: Firebase Genkit update. Key for developers building AI-orchestrated apps in the Google/Firebase stack."
+        elif any((term in title_and_source for term in ['autogen', 'crewai', 'langgraph'])):
+            bridge_context = "COMPETITIVE PULSE: Major update in rival agent frameworks (AutoGen/CrewAI/LangGraph). Monitor for feature parity and market shift."
         elif any((term in title_and_source for term in ['agent', 'builder'])):
             bridge_context = "CRITICAL: Enhances Agent Builder. Field should focus on 'Low-Code to Pro-Code' transition stories."
         elif any((term in title_and_source for term in ['gemini', 'ge', 'generative engine'])):
@@ -240,18 +246,28 @@ class TPCAgent:
                 item['bridge'] = 'Blocked: Potential prompt injection detected.'
                 item['tags'] = ['Security Failure']
                 continue
+            
+            # If summary is missing or useless (e.g. just a version), generate a technical summary
+            if len(item.get('summary', '')) < 50:
+                try:
+                    gen_prompt = f"Based on the title '{item['title']}' from source '{item['source']}', provide a 2-sentence technical summary of what this update likely entails for an AI Engineer. Return ONLY the summary."
+                    gen_resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=gen_prompt)
+                    item['summary'] = gen_resp.text.strip()
+                except Exception:
+                    pass
+
             item['bridge'] = self._summarize_with_gemini(item)
             item['bridge'] = self._scrub_pii(item['bridge'])
             try:
                 tag_prompt = f"Categorize this technical update with 1-2 keywords (e.g. Governance, Security, UX, Performance, Scalability). Update: {item['title']}. Return only keywords separated by commas."
-                tag_resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=tag_prompt)
+                tag_resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=tag_prompt)
                 item['tags'] = [t.strip() for t in tag_resp.text.split(',')]
             except Exception:
                 item['tags'] = []
-            if len(item.get('summary', '')) > 300:
+            if len(item.get('summary', '')) > 200:
                 try:
                     refine_prompt = f"Summarize this for a technical business audience in 3 bullet points focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use emojis for each point. Content: {item['summary']}"
-                    resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=refine_prompt)
+                    resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=refine_prompt)
                     item['summary'] = resp.text.strip()
                 except Exception:
                     pass
@@ -272,8 +288,10 @@ class TPCAgent:
                 </context>
                 
                 <task>
-                Provide a high-level 'Executive Synthesis' (2-3 sentences) summarizing the theme of these recent AI updates.
-                Focus on the collective impact for the field team and customers. Use professional but engaging language with 2-3 relevant emojis.
+                Provide a high-level 'Executive Synthesis' (2-3 sentences) summarizing the collective theme of these updates.
+                If there are multiple sources (e.g. Google, Anthropic, OpenAI), highlight the 'Ecosystem Synergy' or competitive shifts.
+                Focus on the actionable impact for field architects. Use professional, high-signal language with 2-3 relevant emojis.
+                Avoid generic boilerplate. Make it feel fresh and specific to these titles.
                 </task>
 
                 <constraints>
@@ -283,7 +301,7 @@ class TPCAgent:
                 - Keep it strictly professional and business-focused.
                 </constraints>
                 """
-                resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=tldr_prompt)
+                resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=tldr_prompt)
                 tldr = resp.text.strip()
             except Exception:
                 pass
@@ -360,7 +378,7 @@ class TPCAgent:
             Include 1-2 relevant emojis to make it stand out in field reports.
             </format>
             """
-            response = self.client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
+            response = self.client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
             summary = response.text.strip()
             self._summary_cache[cache_key] = summary
             return summary

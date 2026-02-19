@@ -52,7 +52,7 @@ jobs:
           # Email Fallback (requires user-provided secrets)
           if [ -n "$TPC_SENDER_EMAIL" ] && [ -n "$TPC_SENDER_PASSWORD" ]; then
             TARGET_EMAIL=${RECIPIENT_EMAIL:-"ai-tpc-agent@google.com"}
-            tpc-agent email "$TARGET_EMAIL" --days "$LOOKBACK_DAYS"
+            tpc-agent email "$TARGET_EMAIL" --days "$LOOKBACK_DAYS" --infographic
           fi
 
           # GitHub Issue Broadcaster (Secure, zero-config default)
