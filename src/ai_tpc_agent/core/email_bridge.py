@@ -70,6 +70,24 @@ class EmailBridge:
             console.print(f'[red]Failed to send email: {e}[/red]')
             raise e
 
+    def _md_to_html(self, text: str) -> str:
+        """
+        Simple markdown to HTML converter for basic pulse elements.
+        Handles bolding (**text**) and bullets (- or *).
+        """
+        import re
+        # Bolding
+        text = re.sub(r'\*\*(.*?)\*\*', r'<strong style="color: #0f172a;">\1</strong>', text)
+        # Bullets
+        lines = []
+        for line in text.split('\n'):
+            line = line.strip()
+            if line.startswith('- ') or line.startswith('* '):
+                lines.append(f'<div style="margin-bottom: 8px; padding-left: 20px; position: relative;"><span style="position: absolute; left: 0; color: #6366f1;">•</span>{line[2:]}</div>')
+            elif line:
+                lines.append(f'<div style="margin-bottom: 8px;">{line}</div>')
+        return '\n'.join(lines)
+
     def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_cid: str=None, gaps: str=None) -> str:
         grouped_knowledge = {}
         for item in knowledge:
@@ -120,6 +138,8 @@ class EmailBridge:
                 for t in item_tags:
                     tags_html += f'<span style="background-color: #f8fafc; color: #475569; padding: 2px 8px; border-radius: 9999px; font-size: 10px; margin-right: 4px; font-weight: 600; text-transform: uppercase; border: 1px solid #e2e8f0;">{t}</span>'
 
+                summary_html = self._md_to_html(item.get('summary', 'Technical analysis in progress.'))
+
                 sections += f'''
                 <div style="margin-bottom: 24px; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);">
                     <div style="padding: 24px;">
@@ -134,7 +154,7 @@ class EmailBridge:
                         </div>
 
                         <div style="color: #64748b; font-size: 0.85rem; line-height: 1.6; margin-bottom: 20px;">
-                            {item.get('summary', 'Technical analysis in progress.')}
+                            {summary_html}
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -165,6 +185,7 @@ class EmailBridge:
         </div>
         ''' if tldr else ''
 
+        gaps_html = self._md_to_html(gaps) if gaps else ''
         gaps_sec = f'''
         <div style="background: linear-gradient(135deg, #fdf2f2 0%, #fee2e2 100%); border: 1px solid #fecaca; padding: 24px; border-radius: 12px; margin-bottom: 32px;">
             <div style="display: flex; align-items: center; margin-bottom: 12px;">
@@ -172,7 +193,7 @@ class EmailBridge:
                 <h2 style="margin: 0; color: #991b1b; font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Strategic Battlecard: Gaps & Advantages</h2>
             </div>
             <div style="margin: 0; color: #7f1d1d; font-weight: 600; line-height: 1.6; font-size: 0.95rem;">
-                {gaps.replace('\n', '<br>')}
+                {gaps_html}
             </div>
         </div>
         ''' if gaps else ''

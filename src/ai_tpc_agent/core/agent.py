@@ -270,7 +270,7 @@ class TPCAgent:
                 item['tags'] = []
             if len(item.get('summary', '')) > 200:
                 try:
-                    refine_prompt = f"Summarize this for a technical business audience in 3 bullet points focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use emojis for each point. Content: {item['summary']}"
+                    refine_prompt = f"Summarize this for a technical business audience into 3 distinct markdown bullet points. Focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use bold labels for each. Content: {item['summary']}"
                     resp = self.client.models.generate_content(model='gemini-2.5-flash', contents=refine_prompt)
                     item['summary'] = resp.text.strip()
                 except Exception:
@@ -348,16 +348,11 @@ class TPCAgent:
         </context>
 
         <task>
-        Perform a 'Strategic Gap Analysis' for the field team.
-        1. Identify if a competitor (Anthropic/OpenAI) has released a feature that Google (Vertex AI/ADK) is currently lacking (e.g., 'Agent Skills', 'A2UI Standard', 'Trace Persistence').
-        2. Identify where Google has a 'First-Mover' advantage.
-        3. Highlight the #1 'Technical Debt' or 'Feature Gap' the field team should be aware of when talking to customers.
+        {task}
         </task>
 
         <format>
-        Return 2-3 concise, high-impact bullet points. 
-        Focus on 'Feature Parity' and 'Competitive Gaps'.
-        Keep it professional and technical.
+        {format_instr}
         </format>
 
         <constraints>
