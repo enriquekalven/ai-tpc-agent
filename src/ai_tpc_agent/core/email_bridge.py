@@ -28,7 +28,7 @@ class EmailBridge:
             self.context_cache = ContextCacheConfig(ttl_seconds=3600)
 
     @retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))
-    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_path: str=None):
+    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_path: str=None, gaps: str=None):
         """
         Formats and sends the report via Email.
         """
@@ -57,7 +57,7 @@ class EmailBridge:
                     img.add_header('Content-Disposition', 'inline', filename=os.path.basename(infographic_path))
                     msg.attach(img)
 
-            html_content = self._format_html_report(knowledge, tldr, date_range, infographic_cid=infographic_cid)
+            html_content = self._format_html_report(knowledge, tldr, date_range, infographic_cid=infographic_cid, gaps=gaps)
             msg.attach(MIMEText(html_content, 'html'))
             
             server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=15)
@@ -70,7 +70,7 @@ class EmailBridge:
             console.print(f'[red]Failed to send email: {e}[/red]')
             raise e
 
-    def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_cid: str=None) -> str:
+    def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_cid: str=None, gaps: str=None) -> str:
         grouped_knowledge = {}
         for item in knowledge:
             source = item.get('source', 'General Update').replace('-', ' ').title()
@@ -165,6 +165,18 @@ class EmailBridge:
         </div>
         ''' if tldr else ''
 
+        gaps_sec = f'''
+        <div style="background: linear-gradient(135deg, #fdf2f2 0%, #fee2e2 100%); border: 1px solid #fecaca; padding: 24px; border-radius: 12px; margin-bottom: 32px;">
+            <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 18px; margin-right: 12px;">🛡️</span>
+                <h2 style="margin: 0; color: #991b1b; font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">Strategic Battlecard: Gaps & Advantages</h2>
+            </div>
+            <div style="margin: 0; color: #7f1d1d; font-weight: 600; line-height: 1.6; font-size: 0.95rem;">
+                {gaps.replace('\n', '<br>')}
+            </div>
+        </div>
+        ''' if gaps else ''
+
         date_line = f"<div style='margin-top: 12px; opacity: 0.7; font-size: 0.8rem; font-weight: 500;'>{date_range}</div>" if date_range else ''
 
         return f"""
@@ -184,6 +196,7 @@ class EmailBridge:
                     <main style="background-color: #ffffff; padding: 32px; border-radius: 0 0 16px 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                         {infographic_sec}
                         {tldr_sec}
+                        {gaps_sec}
                         <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px;">Technical Roadmap Transitions</div>
                         {sections}
                     </main>

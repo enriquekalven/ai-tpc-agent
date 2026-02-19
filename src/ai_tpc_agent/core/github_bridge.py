@@ -19,7 +19,7 @@ class GitHubBridge:
         self.api_url = f'https://api.github.com/repos/{self.repo}/issues'
 
     @retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))
-    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None):
+    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, gaps: str=None):
         """
         Posts the synthesized report as a new GitHub Issue.
         """
@@ -30,7 +30,7 @@ class GitHubBridge:
             return
         date_suffix = f' ({date_range})' if date_range else ''
         title = f'🚀 AI TPC Pulse: {len(knowledge)} New Updates{date_suffix}'
-        body = self._format_markdown_report(knowledge, tldr, date_range)
+        body = self._format_markdown_report(knowledge, tldr, date_range, gaps)
         try:
             response = requests.post(self.api_url, headers={'Authorization': f'token {self.token}', 'Accept': 'application/vnd.github.v3+json'}, json={'title': title, 'body': body, 'labels': ['pulse', 'automated']}, timeout=15)
             response.raise_for_status()
@@ -39,7 +39,7 @@ class GitHubBridge:
             console.print(f'[red]Failed to post to GitHub: {e}[/red]')
             raise e # Re-raise for retry
 
-    def _format_markdown_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None) -> str:
+    def _format_markdown_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, gaps: str=None) -> str:
         report = '# 🚀 AI TPC Field Pulse\n'
         if date_range:
             report += f'**Pulse Period:** {date_range}\n\n'
@@ -50,6 +50,11 @@ class GitHubBridge:
             report += f'> {tldr}\n\n'
         else:
             report += 'Review industry trends and roadmap shifts below for market context.\n\n'
+        
+        if gaps:
+            report += '## 🛡️ Strategic Battlecard: Gaps & Advantages\n'
+            report += f'{gaps}\n\n'
+
         report += '---\n\n'
         grouped_knowledge = {}
         for item in knowledge:
