@@ -60,6 +60,8 @@ class TPCTools:
         title_and_source = (title + ' ' + knowledge_item.get('source', '').lower())
         if any((term in title_and_source for term in ['claude', 'anthropic', 'opus', 'sonnet', 'haiku'])):
             bridge_context = 'PARTNER DEPTH: New Claude/Anthropic updates. Essential for multi-model strategy and agentic tool diversity.'
+        elif any((term in title_and_source for term in ['openai', 'multi-agent', 'swarm'])):
+            bridge_context = 'PARTNER CONTEXT: OpenAI Agent SDK update. Critical for cross-ecosystem multi-agent orchestration and comparison.'
         elif any((term in title_and_source for term in ['agent', 'builder'])):
             bridge_context = "CRITICAL: Enhances Agent Builder. Field should focus on 'Low-Code to Pro-Code' transition stories."
         elif any((term in title_and_source for term in ['gemini', 'ge', 'generative engine'])):

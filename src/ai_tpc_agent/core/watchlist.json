@@ -76,6 +76,16 @@
       "feed": "https://github.com/enriquekalven/agent-cockpit/releases.atom",
       "description": "AgentOps Cockpit - Production-grade Agent Operations Platform",
       "category": "roadmap"
+    },
+    "openai-agent-sdk-py": {
+      "feed": "https://github.com/openai/openai-agents-python/releases.atom",
+      "description": "OpenAI Agent SDK (Python) - Official Multi-Agent Framework",
+      "category": "roadmap"
+    },
+    "openai-agent-sdk-js": {
+      "feed": "https://github.com/openai/openai-agents-js/releases.atom",
+      "description": "OpenAI Agent SDK (JS/TS) - Official Multi-Agent Framework",
+      "category": "roadmap"
     }
   }
 }
