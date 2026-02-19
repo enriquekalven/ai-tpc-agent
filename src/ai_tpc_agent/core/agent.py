@@ -310,6 +310,14 @@ class TPCAgent:
             except Exception:
                 pass
         
+        # New: Strategic Gap Analysis (Comparing the Ecosystem)
+        gaps = ""
+        if self.client and knowledge:
+            try:
+                gaps = self._analyze_strategic_gaps(knowledge)
+            except Exception:
+                pass
+
         # Persistence: Store all synthesized items in the vector database
         if self.vector_store.enabled:
             try:
@@ -320,7 +328,47 @@ class TPCAgent:
         else:
             console.print('[yellow]Note: Persistence skipped (Vector store disabled).[/yellow]')
             
-        return {'items': knowledge, 'tldr': tldr}
+        return {'items': knowledge, 'tldr': tldr, 'gaps': gaps}
+
+    def _analyze_strategic_gaps(self, knowledge: List[Dict[str, Any]]) -> str:
+        """
+        Performs a cross-source analysis to identify feature gaps or competitive advantages.
+        """
+        titles_with_source = '\n'.join([f"- {k['title']} (Source: {k['source']})" for k in knowledge])
+        
+        prompt = f"""
+        <system_instructions>
+        You are a Strategic AI Analyst for Google Cloud.
+        Your goal is to compare recent updates from Google Cloud AI (Vertex, ADK, Genkit), Anthropic (Claude SDK), and OpenAI (Agent SDK).
+        </system_instructions>
+
+        <context>
+        Recent Ecosystem Updates:
+        {titles_with_source}
+        </context>
+
+        <task>
+        Perform a 'Strategic Gap Analysis' for the field team.
+        1. Identify if a competitor (Anthropic/OpenAI) has released a feature that Google (Vertex AI/ADK) is currently lacking (e.g., 'Agent Skills', 'A2UI Standard', 'Trace Persistence').
+        2. Identify where Google has a 'First-Mover' advantage.
+        3. Highlight the #1 'Technical Debt' or 'Feature Gap' the field team should be aware of when talking to customers.
+        </task>
+
+        <format>
+        Return 2-3 concise, high-impact bullet points. 
+        Focus on 'Feature Parity' and 'Competitive Gaps'.
+        Keep it professional and technical.
+        </format>
+
+        <constraints>
+        - ONLY return the analysis. No preamble.
+        - If there isn't enough info for a deep gap analysis, say "Maintain parity across core agentic workflows."
+        - Be specific about names (e.g. 'Claude Computer Use' vs 'Vertex Agent Builder').
+        </constraints>
+        """
+        
+        resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
+        return resp.text.strip()
 
     def promote_learnings(self, synthesized_content: Dict[str, Any], days: int=1):
         items = synthesized_content.get('items', [])

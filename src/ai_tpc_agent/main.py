@@ -69,7 +69,7 @@ def email(recipient: str=typer.Argument(..., help='Recipient email address'),
     end_date = now.strftime('%Y-%m-%d')
     date_range = f'{start_date} to {end_date}'
     bridge = EmailBridge(recipient, sender, password)
-    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range, infographic_path=infographic_path)
+    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range, infographic_path=infographic_path, gaps=synthesized.get('gaps'))
 
 @app.command()
 def github(days: int=typer.Option(1, '--days', '-d', help='Number of days to look back'), project: str = typer.Option("project-maui", "--project", help="GCP Project ID")):
@@ -86,7 +86,7 @@ def github(days: int=typer.Option(1, '--days', '-d', help='Number of days to loo
     end_date = now.strftime('%Y-%m-%d')
     date_range = f'{start_date} to {end_date}'
     bridge = GitHubBridge()
-    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range)
+    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range, gaps=synthesized.get('gaps'))
 
 @app.command()
 def query(text: str = typer.Argument(..., help="Text to search for in the knowledge base"), project: str = typer.Option("project-maui", "--project", help="GCP Project ID")):
