@@ -9,7 +9,9 @@ from .core.github_bridge import GitHubBridge
 app = typer.Typer(help='AI TPC Agent: Browsing and Promoting AI Knowledge')
 
 @app.command()
-def report(days: int=typer.Option(1, '--days', '-d', help='Number of days to look back'), project: str = typer.Option("project-maui", "--project", help="GCP Project ID")):
+def report(days: int=typer.Option(1, '--days', '-d', help='Number of days to look back'), 
+           project: str = typer.Option("project-maui", "--project", help="GCP Project ID"),
+           infographic: bool = typer.Option(False, "--infographic", help="Generate a visual pulse infographic")):
     """Generate the AI Field Promotion Report locally."""
     agent = TPCAgent(project_id=project)
     knowledge = agent.browse_knowledge()
@@ -19,6 +21,10 @@ def report(days: int=typer.Option(1, '--days', '-d', help='Number of days to loo
     cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
     filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
     synthesized = agent.synthesize_reports(filtered)
+    
+    if infographic:
+        agent.generate_infographic(synthesized)
+        
     agent.promote_learnings(synthesized, days=days)
 
 @app.command()
@@ -39,7 +45,12 @@ def chat(webhook_url: str=typer.Option(None, '--webhook-url', envvar='GCHAT_WEBH
     bridge.post_report(synthesized.get('items', []))
 
 @app.command()
-def email(recipient: str=typer.Argument(..., help='Recipient email address'), sender: str=typer.Option(None, '--sender', envvar='TPC_SENDER_EMAIL', help='Sender email address'), password: str=typer.Option(None, '--password', envvar='TPC_SENDER_PASSWORD', help='Sender email password/token'), days: int=typer.Option(1, '--days', '-d', help='Number of days to look back'), project: str = typer.Option("project-maui", "--project", help="GCP Project ID")):
+def email(recipient: str=typer.Argument(..., help='Recipient email address'), 
+          sender: str=typer.Option(None, '--sender', envvar='TPC_SENDER_EMAIL', help='Sender email address'), 
+          password: str=typer.Option(None, '--password', envvar='TPC_SENDER_PASSWORD', help='Sender email password/token'), 
+          days: int=typer.Option(1, '--days', '-d', help='Number of days to look back'), 
+          project: str = typer.Option("project-maui", "--project", help="GCP Project ID"),
+          infographic: bool = typer.Option(False, "--infographic", help="Generate and embed a visual pulse infographic")):
     """Scan and send the report via Email."""
     agent = TPCAgent(project_id=project)
     knowledge = agent.browse_knowledge()
@@ -49,11 +60,16 @@ def email(recipient: str=typer.Argument(..., help='Recipient email address'), se
     cutoff = (now - timedelta(days=days)).replace(hour=0, minute=0, second=0, microsecond=0)
     filtered = [item for item in knowledge if parse_date(item.get('date', '')) >= cutoff]
     synthesized = agent.synthesize_reports(filtered)
+    
+    infographic_path = None
+    if infographic:
+        infographic_path = agent.generate_infographic(synthesized)
+        
     start_date = cutoff.strftime('%Y-%m-%d')
     end_date = now.strftime('%Y-%m-%d')
     date_range = f'{start_date} to {end_date}'
     bridge = EmailBridge(recipient, sender, password)
-    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range)
+    bridge.post_report(synthesized.get('items', []), tldr=synthesized.get('tldr'), date_range=date_range, infographic_path=infographic_path)
 
 @app.command()
 def github(days: int=typer.Option(1, '--days', '-d', help='Number of days to look back'), project: str = typer.Option("project-maui", "--project", help="GCP Project ID")):

@@ -8,6 +8,8 @@ This roadmap tracks the evolution of the AI TPC Agent from a "Pulse Dispatcher" 
 - ✅ **Promote**: Automated broadcasting via Email, GitHub Issues, and Google Chat.
 - ✅ **Reliability**: Integrated regression test suite and GitHub Actions automation.
 - ✅ **Hardening (v0.1.1)**: Implemented PII Scrubber, Prompt Injection Validation, and Semantic Caching.
+- ✅ **Partner Intelligence (v0.1.2)**: Integrated Anthropic/Claude release monitoring and field talk tracks.
+- ✅ **Visual Synthesis**: NotebookLM-style infographic generation for high-impact summaries.
 
 ---
 

@@ -28,7 +28,7 @@ class EmailBridge:
             self.context_cache = ContextCacheConfig(ttl_seconds=3600)
 
     @retry(wait=wait_exponential(min=1, max=10), stop=stop_after_attempt(3))
-    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None):
+    def post_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_path: str=None):
         """
         Formats and sends the report via Email.
         """
@@ -45,8 +45,21 @@ class EmailBridge:
             if date_range:
                 subject += f' ({date_range})'
             msg['Subject'] = subject
-            html_content = self._format_html_report(knowledge, tldr, date_range)
+            
+            # Embed image if provided
+            infographic_cid = None
+            if infographic_path and os.path.exists(infographic_path):
+                from email.mime.image import MIMEImage
+                infographic_cid = 'infographic_image'
+                with open(infographic_path, 'rb') as f:
+                    img = MIMEImage(f.read())
+                    img.add_header('Content-ID', f'<{infographic_cid}>')
+                    img.add_header('Content-Disposition', 'inline', filename=os.path.basename(infographic_path))
+                    msg.attach(img)
+
+            html_content = self._format_html_report(knowledge, tldr, date_range, infographic_cid=infographic_cid)
             msg.attach(MIMEText(html_content, 'html'))
+            
             server = smtplib.SMTP(self.smtp_server, self.smtp_port, timeout=15)
             server.starttls()
             server.login(self.sender_email, self.sender_password)
@@ -57,7 +70,7 @@ class EmailBridge:
             console.print(f'[red]Failed to send email: {e}[/red]')
             raise e
 
-    def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None) -> str:
+    def _format_html_report(self, knowledge: List[Dict[str, Any]], tldr: str=None, date_range: str=None, infographic_cid: str=None) -> str:
         grouped_knowledge = {}
         for item in knowledge:
             source = item.get('source', 'General Update').replace('-', ' ').title()
@@ -136,6 +149,16 @@ class EmailBridge:
                 </div>
                 '''
 
+        infographic_sec = f'''
+        <div style="margin-bottom: 45px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 2px solid #e2e8f0;">
+            <div style="background-color: #f8fafc; padding: 15px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center;">
+                <span style="font-size: 1.2em; margin-right: 10px;">📊</span>
+                <span style="font-size: 0.75em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #64748b;">Visual Strategy Synthesis</span>
+            </div>
+            <img src="cid:{infographic_cid}" alt="Strategic Infographic" style="width: 100%; display: block; background-color: #f1f5f9;">
+        </div>
+        ''' if infographic_cid else ''
+
         tldr_sec = f'''
         <div style="background: linear-gradient(to right, #fffbeb, #fef3c7); border: 2px solid #fde68a; padding: 30px; border-radius: 16px; margin-bottom: 45px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
             <div style="display: flex; align-items: center; margin-bottom: 15px;">
@@ -163,6 +186,7 @@ class EmailBridge:
                         {date_line}
                     </div>
                     <div style="padding: 60px 50px;">
+                        {infographic_sec}
                         {tldr_sec}
                         <p style="color: #64748b; margin-bottom: 40px; font-weight: 600; font-size: 1em; text-transform: uppercase; letter-spacing: 1.5px;">Latest Roadmap Transitions</p>
                         {sections}
