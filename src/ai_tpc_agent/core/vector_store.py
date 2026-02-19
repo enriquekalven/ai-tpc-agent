@@ -11,11 +11,19 @@ class TPCVectorStore:
     def __init__(self, project_id: str = "project-maui", location: str = "us-east1"):
         self.project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", project_id)
         self.location = os.environ.get("GOOGLE_CLOUD_REGION", location)
+        self.enabled = False
         
-        vertexai.init(project=self.project_id, location=self.location)
-        
-        self.corpus_display_name = "tpc_pulses_corpus"
-        self.corpus = self._get_or_create_corpus()
+        try:
+            vertexai.init(project=self.project_id, location=self.location)
+            self.corpus_display_name = "tpc_pulses_corpus"
+            self.corpus = self._get_or_create_corpus()
+            self.enabled = True
+        except Exception as e:
+            # Handle DefaultCredentialsError or other initialization failures gracefully
+            from rich.console import Console
+            console = Console()
+            console.print(f"[yellow]Warning: Vertex AI RAG Engine initialization skipped: {e}[/yellow]")
+            console.print("[yellow]Persistence and RAG features will be disabled for this session.[/yellow]")
 
     def _get_or_create_corpus(self) -> RagCorpus:
         """Finds or creates the RagCorpus for TPC pulses."""

@@ -130,13 +130,18 @@ class TPCAgent:
         """
         RAG query: Finds relevant historical pulses based on the user query.
         """
-        console.print(f'[cyan]🔍 Querying knowledge base for: "{query}"...[/cyan]')
+        if not self.vector_store.enabled:
+            console.print("[yellow]Warning: Persistent knowledge base is disabled.[/yellow]")
+            return []
         return self.vector_store.query(query, n_results=n_results)
 
     def ingest_documents(self, uris: List[str]):
         """
         Ingests Google Workspace documents (Slides, Docs, Sheets) or GCS files.
         """
+        if not self.vector_store.enabled:
+            console.print("[yellow]Warning: Vector store ingestion is disabled.[/yellow]")
+            return None
         return self.vector_store.ingest_uris(uris)
 
     def audit_maturity(self, package_name: str):
@@ -158,8 +163,11 @@ class TPCAgent:
             "source_url": f"https://pypi.org/project/{package_name}/",
             "tags": ["Maturity", "SDK", "Capability Audit"]
         }
-        self.vector_store.upsert_pulses([pulse_format])
-        console.print(f"[green]✅ Maturity Wisdom for {package_name} persisted to Cloud RAG.[/green]")
+        if self.vector_store.enabled:
+            self.vector_store.upsert_pulses([pulse_format])
+            console.print(f"[green]✅ Maturity Wisdom for {package_name} persisted to Cloud RAG.[/green]")
+        else:
+            console.print(f"[yellow]Maturity Wisdom for {package_name} generated but persistence skipped.[/yellow]")
         return wisdom
 
     def _validate_prompt(self, text: str) -> bool:
@@ -279,11 +287,14 @@ class TPCAgent:
                 pass
         
         # Persistence: Store all synthesized items in the vector database
-        try:
-            self.vector_store.upsert_pulses(knowledge)
-            console.print(f'[green]💾 Persisted {len(knowledge)} updates to the vector database.[/green]')
-        except Exception as e:
-            console.print(f'[yellow]Warning: Failed to persist updates to vector database: {e}[/yellow]')
+        if self.vector_store.enabled:
+            try:
+                self.vector_store.upsert_pulses(knowledge)
+                console.print(f'[green]💾 Persisted {len(knowledge)} updates to the vector database.[/green]')
+            except Exception as e:
+                console.print(f'[yellow]Warning: Failed to persist updates to vector database: {e}[/yellow]')
+        else:
+            console.print('[yellow]Note: Persistence skipped (Vector store disabled).[/yellow]')
             
         return {'items': knowledge, 'tldr': tldr}
 
