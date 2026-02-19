@@ -24,9 +24,29 @@
       "feed": "https://cloud.google.com/blog/rss",
       "description": "Inside Google Cloud - 'What's New' official summaries",
       "category": "trends"
+    },
+    "anthropic-news": {
+      "feed": "https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml",
+      "description": "Anthropic Newsroom - Official announcements and research",
+      "category": "partners"
+    },
+    "anthropic-blog": {
+      "feed": "https://www.anthropic.com/news/feed.xml",
+      "description": "Anthropic Blog - Product and safety updates",
+      "category": "partners"
     }
   },
   "roadmap_trackers": {
+    "claude-agent-sdk-py": {
+      "feed": "https://github.com/anthropics/claude-agent-sdk-python/releases.atom",
+      "description": "Claude Agent SDK (Python) - Official Releases",
+      "category": "roadmap"
+    },
+    "claude-agent-sdk-ts": {
+      "feed": "https://github.com/anthropics/claude-agent-sdk-typescript/releases.atom",
+      "description": "Claude Agent SDK (TypeScript) - Official Releases",
+      "category": "roadmap"
+    },
     "agent-starter-pack": {
       "feed": "https://github.com/GoogleCloudPlatform/agent-starter-pack/releases.atom",
       "description": "Agent Starter Pack - Reference Architecture Roadmap",
