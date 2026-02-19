@@ -233,14 +233,33 @@ class TPCAgent:
         Enriches the knowledge list with Gemini-powered summaries, bridges, and tags.
         """
         if not knowledge:
-            return {'items': [], 'tldr': 'No new updates found for this period.'}
+            return {'items': [], 'tldr': 'No new updates found for this period.', 'gaps': ''}
+        
+        # Priority Logic: Ensure Mission-Critical updates aren't buried
+        priority_keywords = ['gemini 3', 'gemini 2.5', 'sovereign', 'generally available', ' ga ', 'launching', 'preview']
+        
+        priority_items = []
+        standard_items = []
+        
+        for item in knowledge:
+            title_lower = item.get('title', '').lower()
+            if any(kw in title_lower for kw in priority_keywords):
+                priority_items.append(item)
+            else:
+                standard_items.append(item)
         
         # Performance: Limit total items synthesized to prevent long-running pulses
-        # Sort by date (desc) and take top 20
-        knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
-        knowledge = knowledge[:20]
+        # Always include ALL priority items, then fill up to 20 with newest standard items
+        priority_items.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+        standard_items.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
         
-        console.print(f'[cyan]✨ Synthesizing Top {len(knowledge)} reports with Gemini Hybrid Engine...[/cyan]')
+        # Take all priority items (capped at 10 to be safe) + standard items to a total of 25
+        knowledge = (priority_items[:10] + standard_items)[:25]
+        
+        # Re-sort final list by date
+        knowledge.sort(key=lambda x: parse_date(x.get('date', '')), reverse=True)
+        
+        console.print(f'[cyan]✨ Synthesizing {len(knowledge)} reports (Priority-Aware Hybrid Engine)...[/cyan]')
         for item in knowledge:
             if not self.client:
                 item['bridge'] = self.tools.bridge_roadmap_to_field(item)
