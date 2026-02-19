@@ -189,7 +189,7 @@ class EmailBridge:
                     </main>
                     <footer style="padding: 40px 32px; text-align: center;">
                         <p style="margin: 0; font-size: 12px; color: #64748b; font-weight: 500;">
-                            Synthesized by <strong>AI TPC Agent</strong> v0.1.2 • Powered by <strong>Gemini 2.0 Flash</strong>
+                            Synthesized by <strong>AI TPC Agent</strong> v0.1.2 • Powered by <strong>Gemini 2.5 Pro</strong>
                         </p>
                         <div style="margin-top: 16px; font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700;">
                             Google Cloud Confidential • Internal Use Only

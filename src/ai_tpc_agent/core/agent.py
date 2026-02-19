@@ -251,7 +251,7 @@ class TPCAgent:
             if len(item.get('summary', '')) < 50:
                 try:
                     gen_prompt = f"Based on the title '{item['title']}' from source '{item['source']}', provide a 2-sentence technical summary of what this update likely entails for an AI Engineer. Return ONLY the summary."
-                    gen_resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=gen_prompt)
+                    gen_resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=gen_prompt)
                     item['summary'] = gen_resp.text.strip()
                 except Exception:
                     pass
@@ -260,14 +260,14 @@ class TPCAgent:
             item['bridge'] = self._scrub_pii(item['bridge'])
             try:
                 tag_prompt = f"Categorize this technical update with 1-2 keywords (e.g. Governance, Security, UX, Performance, Scalability). Update: {item['title']}. Return only keywords separated by commas."
-                tag_resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=tag_prompt)
+                tag_resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=tag_prompt)
                 item['tags'] = [t.strip() for t in tag_resp.text.split(',')]
             except Exception:
                 item['tags'] = []
             if len(item.get('summary', '')) > 200:
                 try:
                     refine_prompt = f"Summarize this for a technical business audience in 3 bullet points focus on 'Key Feature', 'Customer Value', and 'Sales Play'. Use emojis for each point. Content: {item['summary']}"
-                    resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=refine_prompt)
+                    resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=refine_prompt)
                     item['summary'] = resp.text.strip()
                 except Exception:
                     pass
@@ -301,7 +301,7 @@ class TPCAgent:
                 - Keep it strictly professional and business-focused.
                 </constraints>
                 """
-                resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=tldr_prompt)
+                resp = self.client.models.generate_content(model='gemini-2.5-pro', contents=tldr_prompt)
                 tldr = resp.text.strip()
             except Exception:
                 pass
@@ -378,7 +378,7 @@ class TPCAgent:
             Include 1-2 relevant emojis to make it stand out in field reports.
             </format>
             """
-            response = self.client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            response = self.client.models.generate_content(model='gemini-2.5-pro', contents=prompt)
             summary = response.text.strip()
             self._summary_cache[cache_key] = summary
             return summary
