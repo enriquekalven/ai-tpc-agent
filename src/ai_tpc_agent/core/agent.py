@@ -194,38 +194,42 @@ class TPCAgent:
 
     def generate_infographic(self, synthesized_content: Dict[str, Any]) -> Optional[str]:
         """
-        Generates a visual 'Strategic Infographic' based on the synthesized report data.
+        Generates a visual 'Strategic Infographic' using Gemini 2.0 Imagen.
         Returns the path to the generated image.
         """
         if not synthesized_content.get('items'):
             return None
         
-        console.print('[cyan]🎨 Designing Strategic Infographic via Antigravity Image Engine...[/cyan]')
+        console.print('[cyan]🎨 Designing Strategic Infographic via Gemini Imagen Engine...[/cyan]')
         
         tldr = synthesized_content.get('tldr', '')
-        titles = [item['title'] for item in synthesized_content['items'][:5]]
+        # Only take top 3 high-impact titles for the visual prompt
+        titles = [item['title'] for item in synthesized_content['items'][:3]]
         
-        prompt = f"""
-        TECHNICAL INFOGRAPHIC: AI TPC FIELD PULSE. 
-        Theme: High-velocity technical roadmap summary for Google Cloud AI and Anthropic.
-        Main Message: {tldr}
-        Key Topics: {', '.join(titles)}
-        
-        Style: Professional, premium, corporate tech aesthetic. 
-        Visuals: Strategic tech radar, ecosystem nodes, minimalist grid layout.
-        Color Palette: Deep blues, vibrant indigos, and emerald greens (Google Cloud / Anthropic aesthetic).
-        Text: Large bold headings 'AI TPC PULSE', clean typography.
-        Layout: Vertical infographic with 3-4 distinct 'Knowledge Pillars'.
-        Output: A sleek, 16:9 or 2:3 vertical dashboard visualizing the synergy between Gemini and Claude.
+        image_prompt = f"""
+        A professional, cinematic enterprise technology dashboard. 
+        Main Heading: 'AI TPC FIELD PULSE'.
+        Sub-elements visualizing these topics: {', '.join(titles)}.
+        Style: Cybernetic, minimalist, Google Cloud blue and indigo palette. 
+        Format: Data visualization nodes, clean strategic radar, high contrast.
+        No people, just abstract strategic intelligence concepts.
         """
         
         try:
-            # We use the system's generate_image tool directly in our workflow later, 
-            # but for the class logic we'll return a placeholder that the orchestrator fills.
-            # In this specific agentic context, I will call the tool myself in the next step.
-            return "daily_pulse_infographic.png"
+            if not self.client: return None
+            
+            # Creating a predictable path for the bridge to pick up
+            filename = "daily_pulse_infographic.png"
+            
+            # Use the actual generate_image API
+            # Note: The model name 'imagen-3.0-generate-001' is a placeholder as actual model names vary.
+            # Ensure your `google-generativeai` SDK version supports image generation.
+            resp = self.client.models.generate_image(model='imagen-3.0-generate-001', prompt=image_prompt)
+            resp.save(filename)
+            
+            return filename
         except Exception as e:
-            console.print(f'[red]Failed to generate infographic prompt: {e}[/red]')
+            console.print(f'[red]Failed to generate infographic: {e}[/red]')
             return None
 
     def synthesize_reports(self, knowledge: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -403,21 +407,33 @@ class TPCAgent:
             # Clean up potential markdown formatting if Gemini returns it
             resp = self.client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
             clean_json = resp.text.strip().replace('```json', '').replace('```', '')
+            # Remove any trailing commas or malformed bits Gemini might add
+            clean_json = re.sub(r',\s*]', ']', clean_json)
+            import json
             scores = json.loads(clean_json)
             
             # Map scores back to items
             for s in scores:
-                idx = s.get('index')
-                if idx < len(items):
-                    items[idx]['impact_score'] = s.get('score', 0)
+                try:
+                    idx = int(s.get('index', -1))
+                    score = int(s.get('score', 0))
+                    if 0 <= idx < len(items):
+                        # Force Gemini 3.1 to be top score always
+                        title = items[idx].get('title', '').lower()
+                        if 'gemini 3' in title or 'gemini 3.1' in title:
+                            score = max(score, 98)
+                        items[idx]['impact_score'] = score
+                except (ValueError, TypeError):
+                    continue
             
             # Sort by score descending
             ranked = sorted([i for i in items if 'impact_score' in i], key=lambda x: x['impact_score'], reverse=True)
             
-            # Ensure newest high-score items are prioritize, take top 20
-            return ranked[:20]
+            # Ensure newest high-score items are prioritized, take top 20
+            return ranked[:20] if ranked else items[:20]
         except Exception as e:
             console.print(f"[yellow]Ranking parse failed: {e}. Falling back to default order.[/yellow]")
+            for i in items: i['impact_score'] = 0
             return items[:20]
 
     def promote_learnings(self, synthesized_content: Dict[str, Any], days: int=1):

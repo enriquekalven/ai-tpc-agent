@@ -16,7 +16,7 @@
       "category": "platform"
     },
     "google-cloud-ai-blog": {
-      "feed": "https://cloud.google.com/blog/products/ai-machine-learning/rss",
+      "feed": "https://cloud.google.com/blog/products/ai-machine-learning",
       "description": "Google Cloud AI Blog - Market Trends & Innovations",
       "category": "trends"
     },

@@ -8,47 +8,55 @@ Technical Program Consultant (TPC) Agent designed to browse, track, and promote 
 ```mermaid
 graph TD
     subgraph Sources
-        GC[Google Cloud Release Notes]
-        GH[GitHub Releases]
-        PP[PyPI Updates]
+        GC[Google Cloud Blog & Releases]
+        GH[GitHub Roadmap Activity]
+        PA[Partner Feeds: Anthropic/OpenAI]
     end
 
-    subgraph "AI TPC Agent Core"
-        W[Watcher: HTML & XML Scraper]
-        A[TPC Agent: Synthesis & Bridging]
-        ADK[Google ADK Framework]
-        W --> A
-        ADK --> A
+    subgraph "AI TPC Intelligence Engine"
+        W[Advanced Pulse Watcher]
+        R[Pass 1: Strategic Impact Ranking /Gemini Flash/]
+        A[Pass 2: Hybrid Synthesis /Gemini Pro + Flash/]
+        IG[Generative AI: Strategic Infographics]
+        GA[Strategic Gap Analysis & Battlecards]
+        
+        W --> R
+        R --> A
+        A --> IG
+        A --> GA
     end
 
     subgraph Bridges
-        GI[GitHub Issues]
-        EM[Email Bridge]
-        GChat[Google Chat]
+        GI[GitHub Issues /Pulse History/]
+        EM[Email Bridge /Premium HTML/]
+        GChat[Google Chat /Real-time/]
     end
 
     GC --> W
     GH --> W
-    PP --> W
+    PA --> W
+    
+    IG --> EM
+    GA --> EM
+    GA --> GI
     
     A --> GI
     A --> EM
     A --> GChat
     
-    subgraph "Automation & Scheduling"
-        GA[GitHub Actions Pulse]
-        GA --> |Schedule/Manual| A
+    subgraph "CI/CD Pipeline"
+        GAP[GitHub Actions Automation]
+        GAP --> |Automated Pulse| W
     end
 ```
 
 ## Features
-- **Ecosystem Watcher**: Automated Python scavengers that track Vertex AI releases, GitHub code shifts, and PyPI updates.
-- **Gemini-Powered Synthesis**: Uses **Gemini 2.0 Flash** with hardened instruction boundaries (<system_instructions>) to translate dry technical changelogs into high-impact "Field Talk Tracks."
-- **Professional Multi-Channel Pulse**: Broadcasts professional reports to Email, GitHub Issues, and Google Chat.
-- **Enterprise Hardening & Resiliency**:
-    - **Security**: Built-in Pre-reasoning Prompt Validators and PII Scrubber (Redacting emails/phones from reports). 
-    - **Reliability**: Exponential Backoff (Retries) on all AI and network calls to handle rate limits and transient errors.
-    - **FinOps**: Semantic Caching to reduce redundant LLM calls and Vertex AI Context Caching for token optimization.
+- **Hybrid Intelligence Strategy**: Orchestrated use of **Gemini 2.5 Pro** for deep executive synthesis and **Gemini 2.5 Flash** for high-velocity technical bridging.
+- **Strategic Impact Ranking**: Uses AI to score updates (1-100) based on field relevance, ensuring "Mission Critical" launches (like Gemini 3.1) are never buried by SDK noise.
+- **Strategic Battlecards & Gap Analysis**: Automatically compares Google's roadmap against competitors (Anthropic/OpenAI) to identify feature gaps and "First-Mover" advantages.
+- **Automated Pulse Infographics**: Generates high-signal visual dashboards of the last 24-48 hours of AI roadmap shifts.
+- **Ecosystem Watcher**: Tracks Vertex AI, GitHub codebases (ADK, A2UI, Genkit), and Partner newsrooms in real-time.
+- **Enterprise Hardening**: Built-in PII scrubbing, exponential backoff, and prompt-injection validation.
 
 ## How it Works
 The AI TPC Agent follows a structured **Retrieve -> Synthesize -> Promote** lifecycle:
@@ -60,14 +68,15 @@ The agent's **Watcher** engine wakes up (via GitHub Actions) and uses custom scr
 *   **Industry Trends**: High-signal blogs and market analysis feeds.
 
 ### 2. AI Synthesis (The "Brain")
-Once retrieval is complete, the raw data is passed to **Google Gemini**. The model performs "TPC Reasoning":
-*   **Deep Extraction**: Each technical note is analyzed and converted into a clear, 3-bullet points overview:
+Once retrieval is complete, the raw data is passed through a multi-pass synthesis engine:
+*   **Intelligent Ranking**: Use **Gemini 2.5 Flash** to analyze all incoming signals and assign an **Impact Score (1-100)**. This ensures that major releases like Gemini 3.1 always appear first.
+*   **Hybrid Deep Extraction**: Uses **Gemini 2.5 Pro** for the high-level executive summary and **Gemini 2.5 Flash** to convert technical changes into 3-bullet talk tracks:
     *   **Key Feature**: Distills the technical essence.
     *   **Customer Value**: Quantifies the business impact.
     *   **Sales Play**: Provides the actionable strategy for field teams.
-*   **Bridging**: Automatically identifies High-Impact "Field Talk Tracks" with relevant emojis to capture attention during synthesis.
-*   **Safety First**: Integrates a **Hardened PII Scrubber** and **Prompt Injection Validator** to ensure secure, enterprise-grade summaries.
-*   **Formatting**: Cleans the data into premium HTML (for Email) and Markdown (for GitHub/Chat) with white-space preservation.
+*   **Strategic Gap Analysis**: Automatically analyzes the interplay between Google, Anthropic, and OpenAI to create a "Field Battlecard."
+*   **Strategic Infographics**: Generates visual dashboards directly from the synthesized pulse data.
+*   **Safety First**: Integrates a **Hardened PII Scrubber** and **Prompt Injection Validator** to ensure secure summaries.
 
 ### 3. Field Promotion (The "Bridges")
 The synthesized intel is pushed through various communication bridges:
@@ -144,9 +153,10 @@ tpc-agent report >> FIELD_PILOT_LOG.md
 
 ## Intelligence Targets (Powered by Gemini)
 The agent is specifically tuned to recognize and bridge these key themes:
+- **Gemini 3.1 Pro & 2.5 Pro**: Highlighting reasoning breakthroughs and long-context capabilities.
+- **Strategic Battlecard**: Identifying gaps in Google roadmap vs. Anthropic/OpenAI tools.
 - **Agent Builder**: Translating low-code simplicity to pro-code extensibility.
-- **Gemini / GE**: Articulating the value of reasoning engines and long-context windows.
-- **Claude / Partner Models**: Supporting model-diversity narratives on Vertex AI.
+- **Partner Models & Interop**: Supporting model-diversity narratives on Vertex AI (Claude, Llama).
 - **Developer Frameworks (ADK/A2UI)**: Promoting standard-first agentic architecture.
 - **Sovereign AI**: Matching compliance updates to regional deal blockers.
 - **Security**: Connecting IAM/Encryption shifts to enterprise governance themes.
