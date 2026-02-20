@@ -142,14 +142,24 @@ def _fetch_from_html(url: str, max_items: int = 5) -> List[Dict[str, str]]:
                 possible_titles = re.findall(r'<a[^>]*>(.*?)</a>', nearby_content, flags=re.DOTALL)
                 if possible_titles:
                     title = re.sub(r'<[^>]+>', '', possible_titles[-1]).strip()
-                    if len(title) > 10 and title not in [u['title'] for u in updates]:
-                        updates.append({
-                            'title': title,
-                            'date': dt.isoformat(),
-                            'summary': "Strategic update found on industry pulse feed.",
-                            'source_url': url,
-                            'version': "N/A"
-                        })
+                else:
+                    # Fallback: find first non-empty line after date in text
+                    block = content[pos:pos+500]
+                    clean_block = re.sub(r'<[^>]+>', '\n', block)
+                    lines = [l.strip() for l in clean_block.split('\n') if l.strip()]
+                    # Skip the date itself if it caught it
+                    if lines and any(x in lines[0] for x in ['February', 'January', 'March']): # crude date check
+                        lines = lines[1:]
+                    title = lines[0] if lines else "Update"
+
+                if len(title) > 10 and title not in [u['title'] for u in updates]:
+                    updates.append({
+                        'title': title,
+                        'date': dt.isoformat(),
+                        'summary': "Strategic update found on industry pulse feed.",
+                        'source_url': url,
+                        'version': "N/A"
+                    })
                 if len(updates) >= max_items: break
         return updates
     except Exception:
