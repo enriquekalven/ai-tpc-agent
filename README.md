@@ -10,7 +10,9 @@ graph TD
     subgraph Sources
         GC[Google Cloud Blog & Releases]
         GH[GitHub Roadmap Activity]
-        PA[Partner Feeds: Anthropic/OpenAI]
+        MI[Market Intel: OpenAI/Anthropic/Meta]
+        PB[Benchmarking: LMSYS/Artificial Analysis]
+        ES[Ecosystem SDKs: LangChain/LlamaIndex]
     end
 
     subgraph "AI TPC Intelligence Engine"
@@ -34,7 +36,9 @@ graph TD
 
     GC --> W
     GH --> W
-    PA --> W
+    MI --> W
+    PB --> W
+    ES --> W
     
     IG --> EM
     GA --> EM
@@ -50,12 +54,12 @@ graph TD
     end
 ```
 
-## Features
-- **Hybrid Intelligence Strategy**: Orchestrated use of **Gemini 2.5 Pro** for deep executive synthesis and **Gemini 2.5 Flash** for high-velocity technical bridging.
+- **Competitive Intelligence & Response Strategies**: Naturally handles non-Google updates (OpenAI, Anthropic, Meta) by generating standardized **"How Google Responds"** talk tracks focused on Vertex AI's unique pillars.
+- **Precision Benchmarking Analysis**: Ingests performance data from **LMSYS**, **Artificial Analysis**, and **LLM-Stats** to pivot conversations from "Lab Speed" to "Production Quality."
 - **Strategic Impact Ranking**: Uses AI to score updates (1-100) based on field relevance, ensuring "Mission Critical" launches (like Gemini 3.1) are never buried by SDK noise.
-- **Strategic Battlecards & Gap Analysis**: Automatically compares Google's roadmap against competitors (Anthropic/OpenAI) to identify feature gaps and "First-Mover" advantages.
+- **Strategic Battlecards & Gap Analysis**: Automatically compares Google's roadmap against competitors to identify feature gaps and "First-Mover" advantages.
 - **Automated Pulse Infographics**: Generates high-signal visual dashboards of the last 24-48 hours of AI roadmap shifts.
-- **Ecosystem Watcher**: Tracks Vertex AI, GitHub codebases (ADK, A2UI, Genkit), and Partner newsrooms in real-time.
+- **Global Ecosystem Watcher**: Tracks the entire AI landscape including LangChain, LlamaIndex, Pinecone, and SiliconAngle enterprise trends.
 - **Enterprise Hardening**: Built-in PII scrubbing, exponential backoff, and prompt-injection validation.
 
 ## How it Works
@@ -64,19 +68,19 @@ The AI TPC Agent follows a structured **Retrieve -> Synthesize -> Promote** life
 ### 1. Automated Retrieval (The "Watcher")
 The agent's **Watcher** engine wakes up (via GitHub Actions) and uses custom scrapers to scan:
 *   **Official Release Notes**: Vertex AI, Gemini Enterprise, and Generative AI.
-*   **Developer Repositories**: Source code movements in the Google ADK and A2UI frameworks.
-*   **Industry Trends**: High-signal blogs and market analysis feeds.
+*   **Market Intelligence**: Newsrooms from OpenAI, Anthropic, Meta, and Microsoft.
+*   **Precision Benchmarks**: Lmsys Arena, Artificial Analysis, and SemiAnalysis economics.
+*   **Developer Ecosystem**: Source code and blogs from LangChain, LlamaIndex, Pinecone, and Google ADK.
+*   **Enterprise Trends**: SiliconAngle and High-signal industry analysis.
 
 ### 2. AI Synthesis (The "Brain")
 Once retrieval is complete, the raw data is passed through a multi-pass synthesis engine:
-*   **Intelligent Ranking**: Use **Gemini 2.5 Flash** to analyze all incoming signals and assign an **Impact Score (1-100)**. This ensures that major releases like Gemini 3.1 always appear first.
-*   **Hybrid Deep Extraction**: Uses **Gemini 2.5 Pro** for the high-level executive summary and **Gemini 2.5 Flash** to convert technical changes into 3-bullet talk tracks:
-    *   **Key Feature**: Distills the technical essence.
-    *   **Customer Value**: Quantifies the business impact.
-    *   **Sales Play**: Provides the actionable strategy for field teams.
-*   **Strategic Gap Analysis**: Automatically analyzes the interplay between Google, Anthropic, and OpenAI to create a "Field Battlecard."
+*   **Intelligent Ranking**: Use **Gemini 2.5 Flash** to analyze all incoming signals and assign an **Impact Score (1-100)**.
+*   **Competitive Pulse & Google Responds**: When a non-Google update is detected, the engine generates a **"How Google Responds"** strategy, pivoting the conversation to Vertex AI's managed reliability, 2M+ context window, and TPU efficiency.
+*   **Hybrid Deep Extraction**: Uses **Gemini 2.5 Pro** for executive summaries and **Gemini 2.5 Flash** for 3-bullet talk tracks (Key Feature, Customer Value, Sales Play).
+*   **Strategic Gap Analysis**: Automatically identifies gaps between Google and competitors to create field-ready battlecards.
 *   **Strategic Infographics**: Generates visual dashboards directly from the synthesized pulse data.
-*   **Safety First**: Integrates a **Hardened PII Scrubber** and **Prompt Injection Validator** to ensure secure summaries.
+*   **Safety First**: Integrates a **Hardened PII Scrubber** and **Prompt Injection Validator**.
 
 ### 3. Field Promotion (The "Bridges")
 The synthesized intel is pushed through various communication bridges:
@@ -116,9 +120,16 @@ tpc-agent github
 🚀 AI TPC AGENT: FIELD PROMOTION REPORT (Last 2 Days)
 
 🌉 ROADMAP BRIDGE: FIELD TALK TRACKS
-╭─────────────────────────────────────────── [VERTEX-AI-RELEASES] ───────────────────────────────────────────╮
-│ Feature: Claude 3.5 Sonnet on Vertex AI                                                                    │
-│ Field Impact: PARTNER DEPTH: New Claude models on Vertex. Crucial for customers requesting model-diversity. │
+╭─────────────────────────────────────────────── [OPENAI-NEWS] ──────────────────────────────────────────────╮
+│ Feature: o1-preview and o1-mini reasoning models                                                           │
+│ Field Impact: COMPETITIVE WATCH: Major update in rival reasoning models.                                    │
+│ **Google Response:** Highlight Gemini 1.5 Pro's 2M context window and deep Workspace integration.          │
+│ Action: Open Documentation                                                                                 │
+╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭───────────────────────────────────────── [ARTIFICIAL-ANALYSIS] ────────────────────────────────────────────╮
+│ Feature: New Benchmark: LLM Throughput vs Quality                                                          │
+│ Field Impact: BENCHMARK SHIFT: New performance data detected.                                              │
+│ **Google Response:** Pivot from "Raw Speed" to "Production Quality" and Enterprise SLOs.                   │
 │ Action: Open Documentation                                                                                 │
 ╰────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ╭────────────────────────────────────────────── [GOOGLE-ADK] ────────────────────────────────────────────────╮
@@ -154,10 +165,10 @@ tpc-agent report >> FIELD_PILOT_LOG.md
 ## Intelligence Targets (Powered by Gemini)
 The agent is specifically tuned to recognize and bridge these key themes:
 - **Gemini 3.1 Pro & 2.5 Pro**: Highlighting reasoning breakthroughs and long-context capabilities.
-- **Strategic Battlecard**: Identifying gaps in Google roadmap vs. Anthropic/OpenAI tools.
+- **Benchmarking & Market Intel**: Responding to LMSYS Chatbot Arena and Artificial Analysis rankings.
+- **Competitive Battlecards**: Identifying gaps in Google roadmap vs. Anthropic/OpenAI tools.
 - **Agent Builder**: Translating low-code simplicity to pro-code extensibility.
-- **Partner Models & Interop**: Supporting model-diversity narratives on Vertex AI (Claude, Llama).
-- **Developer Frameworks (ADK/A2UI)**: Promoting standard-first agentic architecture.
+- **Performance & Economics**: Using SemiAnalysis trends to sell the value of the TPU-integrated stack.
 - **Sovereign AI**: Matching compliance updates to regional deal blockers.
 - **Security**: Connecting IAM/Encryption shifts to enterprise governance themes.
 
