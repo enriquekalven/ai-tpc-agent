@@ -26,6 +26,31 @@ def test_fetch_from_feed_atom(mock_urlopen):
     assert updates[0]['source_url'] == 'https://example.com/1'
 
 @patch('urllib.request.urlopen')
+def test_fetch_from_feed_patterns(mock_urlopen):
+    import io
+    rss_xml = b'<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><item><title>RSS 1</title></item></channel></rss>'
+    
+    # Test /rss pattern
+    mock_response = io.BytesIO(rss_xml)
+    mock_response.getcode = MagicMock(return_value=200)
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_urlopen.return_value = mock_response
+    
+    updates = fetch_recent_updates('https://example.com/category/rss', max_items=1)
+    assert len(updates) == 1
+    assert updates[0]['title'] == 'RSS 1'
+    
+    # Test /feed pattern
+    mock_response = io.BytesIO(rss_xml)
+    mock_response.getcode = MagicMock(return_value=200)
+    mock_response.__enter__ = MagicMock(return_value=mock_response)
+    mock_urlopen.return_value = mock_response
+    
+    updates = fetch_recent_updates('https://example.com/blog/feed', max_items=1)
+    assert len(updates) == 1
+    assert updates[0]['title'] == 'RSS 1'
+
+@patch('urllib.request.urlopen')
 @retry(wait=wait_exponential(multiplier=1, min=4, max=10), stop=stop_after_attempt(3))
 def test_fetch_from_html(mock_urlopen):
     html_content = b'\n    <html>\n      <body>\n        <h2 id="February_06_2026">February 06, 2026</h2>\n        <div>Feature: New AI Agent</div>\n        <p>This is a test summary for the new agent.</p>\n        <h2 id="February_05_2026">February 05, 2026</h2>\n        <div>Announcement: Security fix</div>\n      </body>\n    </html>\n    '

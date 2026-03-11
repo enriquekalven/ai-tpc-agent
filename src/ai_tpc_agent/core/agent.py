@@ -64,7 +64,11 @@ class TPCTools:
         title = knowledge_item.get('title', '').lower()
         bridge_context = 'This update improves developer velocity and aligns with the 2026 Sovereign AI themes.'
         title_and_source = (title + ' ' + knowledge_item.get('source', '').lower())
-        if any((term in title_and_source for term in ['claude', 'anthropic', 'opus', 'sonnet', 'haiku', 'cowork'])):
+        if any((term in title_and_source for term in ['benchmark', 'leaderboard', 'arena', 'artificial analysis', 'llm-stats'])):
+            bridge_context = 'BENCHMARK SHIFT: New performance data detected. **Google Response:** Pivot from "Raw Speed" to "Production Quality." Highlight Gemini’s consistency, lower hallucination rates in RAG, and the "Enterprise SLOs" that community benchmarks don’t measure.'
+        elif any((term in title_and_source for term in ['compute', 'gpu', 'economics', 'semianalysis'])):
+            bridge_context = 'COMPUTE INTELLIGENCE: Market shift in AI economics. **Google Response:** Highlight Google’s vertically integrated stack (TPU v5p) which provides better long-term TCO and availability than GPU-constrained competitors.'
+        elif any((term in title_and_source for term in ['claude', 'anthropic', 'opus', 'sonnet', 'haiku', 'cowork'])):
             bridge_context = 'PARTNER DEPTH: New Claude/Anthropic updates. **Google Response:** Focus on Vertex AI as the "Enterprise Model Garden" where Claude runs with GCP security/privacy.'
         elif any((term in title_and_source for term in ['openai', 'gpt-4', 'gpt-5', 'o1', 'sora', 'multi-agent', 'swarm'])):
             bridge_context = 'COMPETITIVE WATCH: New OpenAI update. **Google Response:** Highlight Gemini 1.5 Pro 2M context window and deep Workspace integration which OpenAI lacks.'
@@ -78,10 +82,6 @@ class TPCTools:
             bridge_context = 'VECTOR DB WATCH: Market shift in retrieval. **Google Response:** Highlight Vertex AI Search/Vector Search and AlloyDB for integrated, managed vector capabilities with lower TCO.'
         elif any((term in title_and_source for term in ['microsoft', 'azure', 'phind', 'mistral', 'copilot'])):
             bridge_context = 'COMPETITIVE ECOSYSTEM: Rival AI platform update. **Google Response:** Leverage Vertex AI Multi-Cloud and the "Open Model Garden" philosophy to offer more choice than locked-in competitors.'
-        elif any((term in title_and_source for term in ['benchmark', 'leaderboard', 'arena', 'artificial analysis', 'llm-stats'])):
-            bridge_context = 'BENCHMARK SHIFT: New performance data detected. **Google Response:** Pivot from "Raw Speed" to "Production Quality." Highlight Gemini’s consistency, lower hallucination rates in RAG, and the "Enterprise SLOs" that community benchmarks don’t measure.'
-        elif any((term in title_and_source for term in ['compute', 'gpu', 'economics', 'semianalysis'])):
-            bridge_context = 'COMPUTE INTELLIGENCE: Market shift in AI economics. **Google Response:** Highlight Google’s vertically integrated stack (TPU v5p) which provides better long-term TCO and availability than GPU-constrained competitors.'
         elif any((term in title_and_source for term in ['genkit', 'firebase', 'agent', 'builder'])):
             bridge_context = "GOOGLE ECOSYSTEM: Enhances Agent Builder/Genkit. Field should focus on 'Low-Code to Pro-Code' transition stories."
         elif any((term in title_and_source for term in ['gemini', 'ge', 'generative engine'])):

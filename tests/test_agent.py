@@ -33,12 +33,33 @@ def test_bridge_roadmap_to_field():
     assert 'PARTNER DEPTH' in bridge
     
     bridge = tools.bridge_roadmap_to_field({'title': 'v0.2.1', 'source': 'openai-agent-sdk-js'})
-    assert 'PARTNER CONTEXT' in bridge
+    assert 'COMPETITIVE WATCH' in bridge
     bridge = tools.bridge_roadmap_to_field({'title': 'New multi-agent orchestration features'})
-    assert 'PARTNER CONTEXT' in bridge
+    assert 'COMPETITIVE WATCH' in bridge
     
     bridge = tools.bridge_roadmap_to_field({'title': 'Random Product Update'})
     assert 'velocity' in bridge
+    
+    # Test Competitive & Benchmark Bridges
+    bridge = tools.bridge_roadmap_to_field({'title': 'Llama 3.1 released by Meta'})
+    assert 'OPEN MODELS' in bridge
+    assert 'Google Response' in bridge
+    
+    bridge = tools.bridge_roadmap_to_field({'title': 'LangChain v0.3 release'})
+    assert 'SDK TRENDS' in bridge
+    assert 'Reasoning Engine' in bridge
+    
+    bridge = tools.bridge_roadmap_to_field({'title': 'Artificial Analysis: Gemini vs GPT-4o'})
+    assert 'BENCHMARK SHIFT' in bridge
+    assert 'Production Quality' in bridge
+    
+    bridge = tools.bridge_roadmap_to_field({'title': 'New Microsoft Copilot SDK'})
+    assert 'COMPETITIVE ECOSYSTEM' in bridge
+    assert 'Model Garden' in bridge
+    
+    bridge = tools.bridge_roadmap_to_field({'title': 'SemiAnalysis: The cost of training Llama 4'})
+    assert 'COMPUTE INTELLIGENCE' in bridge
+    assert 'TPU v5p' in bridge
 
 def test_scrub_pii():
     text = "Contact me at test@example.com or call 555-123-4567."
@@ -171,3 +192,25 @@ def test_generate_infographic(mock_vector_store_class):
     
     assert path == "daily_pulse_infographic.png"
     assert mock_client.models.generate_image.called
+
+@patch('ai_tpc_agent.core.agent.TPCVectorStore')
+def test_summarize_with_gemini_competitive_prompt(mock_vector_store_class):
+    agent = TPCAgent()
+    mock_client = MagicMock()
+    agent.client = mock_client
+    
+    # Mock Gemini response
+    mock_resp = MagicMock()
+    mock_resp.text = "This matters because Y. **Google Response:** Pivot to X."
+    mock_client.models.generate_content.return_value = mock_resp
+    
+    item = {'title': 'OpenAI o1 launch', 'description': 'OpenAI News', 'summary': 'New model released'}
+    summary = agent._summarize_with_gemini(item)
+    
+    # Check that prompt was called
+    assert mock_client.models.generate_content.called
+    args, kwargs = mock_client.models.generate_content.call_args
+    prompt_text = kwargs.get('contents', args[1] if len(args) > 1 else "")
+    assert "Google Response" in prompt_text
+    assert "**Google Response:**" in summary
+    assert "Pivot to X" in summary
